@@ -1,23 +1,21 @@
 import React, { Component } from 'react';
-import { Route, Router,Switch } from 'react-router-dom';
-// import Main from './modules/Main';
+import { Route, Router, Switch } from 'react-router-dom';
 import Login from './pages/Auth/Login';
+import Signup from './pages/Auth/Signup';
 import Dashboard from './pages/Dashboard/Dashboard';
 import Users from './pages/Users/Users';
+import Main from './pages/Main/Main';
 import history from './History';
+
 class Routers extends Component {
     render() {
         return (
             <Router history={history}>
-            
-            <Switch>
-            
-                    <Route exact path="/" component={Login} />
-                    <Route exact path="/Dashboard" component={Dashboard} />
-                    <Route exact path="/Users" component={Users} />
-                    {/* <Route  path="/Main" component={Main} /> */}
-                  
-                  </Switch>
+
+                <Switch>
+                    <Route path="/" component={Main} />
+                    
+                </Switch>
             </Router>
         )
     }

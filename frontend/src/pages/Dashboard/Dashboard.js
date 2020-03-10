@@ -196,7 +196,7 @@ export default class Dashboard extends Component {
               Radar Chart
               <div className="card-header-actions">
                 <a href="http://www.chartjs.org" className="card-header-action">
-                  <small className="text-muted">docs</small>
+                  <small className="text-white">docs</small>
                 </a>
               </div>
             </CardHeader>

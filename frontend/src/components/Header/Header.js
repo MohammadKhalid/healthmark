@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-import history from '../History';
+import history from '../../History';
 export default class Header extends Component {
     constructor(props) {
         super(props);
@@ -8,7 +8,7 @@ export default class Header extends Component {
     }
     logout() {
 
-        history.replace('/', null);
+        history.replace('/Login', null);
 
     }
     render() {
@@ -19,8 +19,8 @@ export default class Header extends Component {
                         <div className="col-sm-3 "></div>
                         <div className="col-sm-6">
                             <div className="collapse navbar-collapse" id="navbarNavAltMarkup">
-                                <div className="navbar-nav ">
-                                    <a className="nav-item nav-link active" >Home <span className="sr-only">(current)</span></a>
+                                <div className="navbar-nav m-2 ">
+                                    <a className="nav-item nav-link active" > <span className="sr-only">(current)</span></a>
 
                                 </div>
                             </div>
@@ -28,7 +28,7 @@ export default class Header extends Component {
 
                     </div>
                     <div className="col-sm-3">
-                        <Link onClick={this.logout.bind(this)} className="float-right text-light" style={{ fontSize: '16px' }} to="/">
+                        <Link onClick={this.logout.bind(this)} className="float-right text-light" style={{ fontSize: '16px' }} to="/Login   ">
                             <i className="fa fa-sign-out text-white pl-3"></i>
                         </Link>
                     </div>

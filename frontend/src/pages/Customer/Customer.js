@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 // import { SessionManager } from '../Helper/SessionsManager';
-export default class Users extends Component {
+export default class Customer extends Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -129,7 +129,7 @@ export default class Users extends Component {
             <div id="App">
                 <div className="mt-4" style={{ width: '90%', margin: '0 auto' }}>
                     <div class="container-fluid bg-chart">
-                        <p class="text-light pt-2 pb-2 font-weight-bold cent">Search Users</p>
+                        <p class="text-light pt-2 pb-2 font-weight-bold cent">Search Customer</p>
                     </div>
                     <div class="container-fluid  bg-light">
                         <div className="row">
@@ -137,33 +137,21 @@ export default class Users extends Component {
                                 <form style={{ marginTop: '40px' }}>
                                     <div className="form-group row mt-2">
                                         <div className="col-sm-3 d-inline-block">
-                                            <label for=" ">Role</label>
+                                            <label for=" ">Item Categoty</label>
                                             <select className="form-control txt_SearchUserName" value={this.state.search_role} onChange={this.SearchRoleChange}>
                                                 <option value={0}>--Select--</option>
-                                                <option value={1}>Admin</option>
-                                                <option value={2}>Hospital</option>
-                                                <option value={3}>Client</option>
+                                                <option value={1}>Categoty 1</option>
+                                                <option value={2}>Categoty 2</option>
+                                                <option value={3}>Categoty 3</option>
                                                 
                                             </select>
                                         </div>
                                         <div className="col-sm-3">
-                                            <label for=" ">User Name</label>
+                                            <label for=" ">Item Name</label>
                                             <input name="search_name" value={this.state.search_name} onChange={this.searchOnchange} type="text" className="form-control txt_SearchUserName " />
                                         </div>
-                                        <div className="col-sm-3">
-                                            <label for=" ">Email (Login-Id)</label>
-                                            <input name="search_email" value={this.state.search_email} onChange={this.searchOnchange} type="email" className="form-control txt_SearchEmail " />
-                                        </div>
-                                        <div className="col-sm-3 d-inline-block">
-                                            <label for=" ">Department</label>
-                                            <select className="form-control txt_SearchUserName" value={this.state.search_department} onChange={this.SearchDepartmentChange}>
-                                                <option value={0}>Select</option>
-                                                <option value={1}>Select 1</option>
-                                                <option value={2}>Select 2</option>
-                                                <option value={3}>Select 3</option>
-                                               
-                                            </select>
-                                        </div>
+                                     
+                                       
                                     </div>
                                 </form>
                             </div>
@@ -199,11 +187,9 @@ export default class Users extends Component {
                                                         <thead class="bg-chart text-light">
                                                             <tr>
                                                                 <th className="panel-th1">S.No</th>
-                                                                <th className="panel-th2">Role </th>
-                                                                <th className="panel-th3">User Name </th>
-                                                                <th className="panel-th4">Email (Login-Id)</th>
-                                                                <th className="panel-th5">Department</th>
-                                                                <th className="panel-th6">Action</th>
+                                                                <th className="panel-th4">Item Category </th>
+                                                                <th className="panel-th4">Item Name </th>
+                                                               <th className="panel-th4">Action</th>
                                                             </tr>
                                                         </thead>
                                                         {this.state.selectedUser.length > 0 &&
@@ -258,42 +244,22 @@ export default class Users extends Component {
                                         <input name="ctl00$MainContent$hfModalId" type="hidden" id="MainContent_hfModalId" class="MainContent_hfModalId" />
                                         <div class="form-group">
                                             <div class="col-lg-12">
-                                                <label for="exampleInputPassword2">Role </label>
+                                                <label for="exampleInputPassword2">Item Category </label>
                                                 <span id="MainContent_RequiredFieldValidator5" style={{ color: 'Red', display: 'none' }}></span>
                                                 <select className="form-control" value={this.state.modal_role} onChange={this.ModelRoleChange}>
                                                     <option value={0}>--Select--</option>
-                                                    {roles.length > 0 &&
-                                                        (roles.map((val, ind) => {
-                                                            return (
-                                                                <option key={ind} value={val.Role_Id}>{val.RoleName}</option>
-                                                            )
-                                                        }))
-                                                    }
+                                                    <option value={0}>Category 1</option>
+                                                    <option value={0}>Category 2</option>
+                                                    <option value={0}>Category 3</option>
+                                                    
                                                 </select>
                                             </div>
-                                            <div class="col-lg-12">
-                                                <label for="exampleInputPassword2">Department </label>
-                                                <span id="MainContent_RequiredFieldValidator4" style={{ color: 'Red', display: 'none' }}></span>
-                                                <select className="form-control" value={this.state.modal_dapartment} onChange={this.ModelDepartmentChange}>
-                                                    <option value={0}>--Select--</option>
-                                                    {department.length > 0 &&
-                                                        (department.map((val, ind) => {
-
-                                                            return (
-                                                                <option key={ind} value={val.Department_Id}>{val.DepartmentName}</option>
-                                                            )
-                                                        }))
-                                                    }
-                                                </select>
-                                            </div>
-                                            <label class="col-lg-12">User Name </label>
+                          
+                                            <label class="col-lg-12">Item Name </label>
                                             <div class="col-lg-12">
                                                 <input type="email" name="user_name" value={this.state.user_name} onChange={this.AddOnChange} className="form-control txt_SearchEmail " /><span class="help-block m-b-none"></span>
                                             </div>
-                                            <label class="col-lg-12">Email (Login-Id)</label>
-                                            <div class="col-lg-12">
-                                                <input type="email" name="email" value={this.state.email} onChange={this.AddOnChange} className="form-control txt_SearchEmail " /><span class="help-block m-b-none"></span>
-                                            </div>
+                                          
                                         </div>
                                     </div>
                                 </div>

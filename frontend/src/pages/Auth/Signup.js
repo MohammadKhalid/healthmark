@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import './Login.css';
-import history from '../../History';
 
-class Login extends Component {
+
+export default class Signup extends Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -11,9 +11,9 @@ class Login extends Component {
             // password: '123123',
             email: '',
             password: '',
+            conformpassword: '',
             ResponseData: undefined
         }
-        this.Login = this.Login.bind(this)
         this.signUp = this.signUp.bind(this)
         this.onChangeState = this.onChangeState.bind(this)
     }
@@ -22,11 +22,8 @@ class Login extends Component {
             [e.target.name]: e.target.value
         })
     }
-    Login = () => {
-        history.push('/')
-    }
-    signUp = () => {
-        history.push('/Signup')
+    signUp() {
+        
     }
 
     render() {
@@ -38,11 +35,11 @@ class Login extends Component {
                         <img src={'assets/images/newlog.png'} className="img-responsive" alt="Alternate Text" />
                     </div>
                     <div className="col-sm-5 col-md-4 col-lg-4">
-                        <div className="login-bar pb-2">
-                            <div className="m-t d-sm-block " role="form">
+                        <div className="login-bar">
+                            <div className="m-t" role="form">
                                 <div className="form-group">
                                     <img className="img-responsive" src={'assets/images/logo1.png'} alt='Profile-Photo' style={{ width: '200px' }} /></div>
-                                <h3>Login to continue</h3>
+                                {/* <h3>Login to continue</h3> */}
                                 <div className="form-group" id="divform">
                                     <div className="form-group">
                                         <input name="email" type="email" value={this.state.email} onChange={this.onChangeState} className="form-control" placeholder="Username" />
@@ -50,15 +47,17 @@ class Login extends Component {
                                     <div className="form-group">
                                         <input name="password" value={this.state.password} onChange={this.onChangeState} type="Password" className="form-control" placeholder="Password" />
                                     </div>
-                                    <button className="btn btn-outline-success block full-width m-b" onClick={this.Login}>Login</button>
 
-                                    <button className="btn btn-outline-danger block full-width m-b float-right" onClick={this.signUp}  >Signup</button>
+                                    <div className="form-group">
+                                        <input name="conformpassword" value={this.state.conformpassword} onChange={this.onChangeState} type="Password" className="form-control" placeholder="Conform Password" />
+                                    </div>
+
+                                    <button className="btn btn-success block full-width m-b" onClick={this.signUp}  >Signup</button>
+
                                     <label className="alert-link" />
                                     <div className="" id="divError" visible="false">
                                     </div>
-                                    <a>
-                                        <small>Forgot password?</small>
-                                    </a>
+                                  
                                 </div>
                             </div>
                             <div className="m-t">
@@ -74,4 +73,3 @@ class Login extends Component {
     }
 }
 
-export default Login;
