@@ -20,9 +20,17 @@ export default class Header extends Component {
                         <div className="col-sm-6">
                             <div className="collapse navbar-collapse" id="navbarNavAltMarkup">
                                 <div className="navbar-nav m-2 ">
+                                
+                                {/* <img src={'assets/images/logo.png'} width="30" height="30" class="d-inline-block align-top" alt=""/> */}
+               
                                     <a className="nav-item nav-link active" > <span className="sr-only">(current)</span></a>
 
                                 </div>
+
+{/* <a class="navbar-brand" href="#">
+    <img src="/docs/4.0/assets/brand/bootstrap-solid.svg" width="30" height="30" class="d-inline-block align-top" alt=""/>
+    Bootstrap
+  </a> */}
                             </div>
                         </div>
 

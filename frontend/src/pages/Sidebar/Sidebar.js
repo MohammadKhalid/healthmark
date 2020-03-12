@@ -28,9 +28,10 @@ export default class SidebarMenu extends Component {
                         </a>
                         <div className="dropdown-menu" aria-labelledby="dropdownMenuButton">
                             <ul className="mt-5 ul-sub-menu-item">
-                                <a className="sub-menu-item" href="/Users"> <li><span className="fa fa-home  pr-2"></span> Setup_User  </li></a>
-                                <a className="sub-menu-item" href="/Inventory"> <li><span className="fa fa-home  pr-2"></span>  Setup_Inventory  </li></a>
-                                <a className="sub-menu-item" href="/Customer"><li><span className="fa fa-home  pr-2"></span>   Setup_Customer </li></a>
+                                <a className="sub-menu-item" href="/Users"> <li><span className="fa fa-home  pr-2"></span>Add User</li></a>
+                                <a className="sub-menu-item" href="/Inventory"> <li><span className="fa fa-home  pr-2"></span>Add Inventory</li></a>
+                                <a className="sub-menu-item" href="/Customer"><li><span className="fa fa-home  pr-2"></span>Add Customer</li></a>
+                                <a className="sub-menu-item" href="/Order"> <li><span className="fa fa-home  pr-2"></span>Order</li></a>
                             </ul>
                         </div>
                     </div>

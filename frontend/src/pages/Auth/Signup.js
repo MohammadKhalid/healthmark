@@ -23,7 +23,7 @@ export default class Signup extends Component {
         })
     }
     signUp() {
-        
+
     }
 
     render() {
@@ -35,14 +35,18 @@ export default class Signup extends Component {
                         <img src={'assets/images/newlog.png'} className="img-responsive" alt="Alternate Text" />
                     </div>
                     <div className="col-sm-5 col-md-4 col-lg-4">
-                        <div className="login-bar">
+                        <div className="signup-bar">
                             <div className="m-t" role="form">
                                 <div className="form-group">
                                     <img className="img-responsive" src={'assets/images/logo1.png'} alt='Profile-Photo' style={{ width: '200px' }} /></div>
                                 {/* <h3>Login to continue</h3> */}
                                 <div className="form-group" id="divform">
+
                                     <div className="form-group">
-                                        <input name="email" type="email" value={this.state.email} onChange={this.onChangeState} className="form-control" placeholder="Username" />
+                                        <input name="name" value={this.state.name} onChange={this.onChangeState} type="text" className="form-control" placeholder="Name" />
+                                    </div>
+                                    <div className="form-group">
+                                        <input name="email" type="email" value={this.state.email} onChange={this.onChangeState} className="form-control" placeholder="Email" />
                                     </div>
                                     <div className="form-group">
                                         <input name="password" value={this.state.password} onChange={this.onChangeState} type="Password" className="form-control" placeholder="Password" />
@@ -52,12 +56,27 @@ export default class Signup extends Component {
                                         <input name="conformpassword" value={this.state.conformpassword} onChange={this.onChangeState} type="Password" className="form-control" placeholder="Conform Password" />
                                     </div>
 
+                                    <div className="form-group">
+                                        <input name="phone" type="text" value={this.state.phone} onChange={this.onChangeState} className="form-control" placeholder="Phone" />
+                                    </div>
+
+                                    <div className="form-group">
+                                        {/* <label for=" ">User Type</label> */}
+                                        <select className="form-control txt_SearchUserName" value={this.state.search_role} onChange={this.SearchRoleChange}>
+                                            <option value={0}>User Type</option>
+                                            <option value={1}>Admin</option>
+                                            <option value={2}>Hospital</option>
+                                            <option value={3}>Client</option>
+
+                                        </select>
+                                    </div>
+
                                     <button className="btn btn-success block full-width m-b" onClick={this.signUp}  >Signup</button>
 
                                     <label className="alert-link" />
                                     <div className="" id="divError" visible="false">
                                     </div>
-                                  
+
                                 </div>
                             </div>
                             <div className="m-t">

@@ -33,6 +33,10 @@ const Customer = Loadable({
     loader: () => import('../Customer/Customer'),
     loading: Loading,
 });
+const Order = Loadable({
+    loader: () => import('../Order/Order'),
+    loading: Loading,
+});
 
 const routes = [
     { path: '/Main', exact: true, name: 'Main', component: Main },
@@ -43,6 +47,7 @@ const routes = [
     { path: '/Users', exact: true, name: 'Users', component: Users },
     { path: '/Inventory', exact: true, name: 'Inventory', component: Inventory },
     { path: '/Customer', exact: true, name: 'Customer', component: Customer },
+    { path: '/Order', exact: true, name: 'Order', component: Order },
    
    
 ];
