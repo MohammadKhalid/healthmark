@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import SideBar from '../Sidebar/Sidebar';
 import Header from '../../components/Header/Header';
 import routes from '../Routes/Routes';
-import Login from '../Auth/Login';
+
 import { Redirect, Route, Switch } from 'react-router-dom';
 
 export default class Main extends Component {
@@ -21,7 +21,7 @@ export default class Main extends Component {
                         <Header />
                         <SideBar />
                     </div>
-                    
+
                 }
                 <main className="main">
                     <div>
