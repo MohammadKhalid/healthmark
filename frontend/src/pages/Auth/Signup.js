@@ -19,10 +19,13 @@ export default class Signup extends Component {
             userTypeSelect: '',
             ResponseData: undefined,
             isinFormValid: true,
+            isError: false,
+            errorMessage: "",
             formError: {
                 name: '',
                 email: '',
                 phone: '',
+                conformpassword: '',
                 password: '',
                 userTypeSelect: '',
                 emptyFields: ''
@@ -53,26 +56,15 @@ export default class Signup extends Component {
                 break;
             }
             case 'conformpassword': {
-                isinFormValid = value !== password ? true : false
+                isinFormValid = value !== password < 8 ? true : false
 
-                formError.password = value !== password ?
+                formError.conformpassword = value !== password ?
                     'Password doesnot match.'
                     :
                     ''
                 break;
             }
-            case 'phone': {
-                isinFormValid = value === "" ? true : false
-                break;
-            }
-            case 'name': {
-                isinFormValid = value === "" ? true : false
-                break;
-            }
-            case 'userTypeSelect': {
-                isinFormValid = value === "" ? true : false
-                break;
-            }
+
         }
         this.setState({
             formError,
@@ -81,17 +73,21 @@ export default class Signup extends Component {
         })
     }
     signUp() {
-        let { formError, email, phone, conformpassword, password, name, userTypeSelect } = this.state
+        let { formError, email, phone, conformpassword, password, name, userTypeSelect, isinFormValid, isError, errorMessage } = this.state
 
+
+        isinFormValid = false
         if (email === "" || phone === "" || password === "" || name === "" || userTypeSelect === "") {
             formError.emptyFields = "All fileds are required."
+            isinFormValid = true
             this.setState({
                 formError,
-                isinFormValid: true
+                isinFormValid
             })
 
-        } else {
+        }
 
+        if (!isinFormValid) {
             formError.emptyFields = ""
             formError.name = ""
             formError.email = ""
@@ -107,22 +103,35 @@ export default class Signup extends Component {
                 userType: userTypeObj
             }
 
-            // userSignUp(obj)
-            //     .then(res => {
-            //         let { data, code } = res.data
-            //         console.log(res.data)
-            //         if (code === 200) {
+            userSignUp(obj)
+                .then(res => {
+                    let { data, code } = res.data
+                    console.log(res.data)
+                    if (code === 200) {
+                        isError = false
 
-            //         }
-            //     }).catch(err => {
-            //         let { data, code } = err
+                        this.setState({
+                            isError
+                        })
+                    }
+                }).catch(err => {
+                    let { data, code } = err
 
-            //         console.log(err)
-            //         if (code === 422) {
+                    console.log(err)
+                    if (code === 422) {
+                        isError = true
+                        errorMessage = err.message
 
-            //         }
-            //     })
+                        this.setState([
+                            isError,
+                            errorMessage
+                        ])
+                    }
+                })
+            console.log(obj)
         }
+
+
     }
 
     renderUserTypeOption() {
@@ -136,8 +145,8 @@ export default class Signup extends Component {
     }
 
     render() {
-        let { formError, isinFormValid } = this.state
-console.log(isinFormValid)
+        let { formError, isinFormValid, password, conformpassword, isError, errorMessage } = this.state
+        console.log(formError)
         return (
             <div className=" container-fluid loginColumns animated fadeInDown">
                 <div className="row">
@@ -157,13 +166,37 @@ console.log(isinFormValid)
                                     </div>
                                     <div className="form-group">
                                         <input name="email" type="email" value={this.state.email} onChange={this.onChangeState.bind(this)} className="form-control" placeholder="Email" />
+                                        {
+                                            formError.email !== "" ?
+                                                <span className="text-danger">
+                                                    {formError.email}
+                                                </span>
+                                                :
+                                                null
+                                        }
                                     </div>
                                     <div className="form-group">
                                         <input name="password" value={this.state.password} onChange={this.onChangeState.bind(this)} type="Password" className="form-control" placeholder="Password" />
+                                        {
+                                            formError.password !== "" ?
+                                                <span className="text-danger">
+                                                    {formError.password}
+                                                </span>
+                                                :
+                                                null
+                                        }
                                     </div>
 
                                     <div className="form-group">
                                         <input name="conformpassword" value={this.state.conformpassword} onChange={this.onChangeState.bind(this)} type="Password" className="form-control" placeholder="Conform Password" />
+                                        {
+                                            formError.conformpassword ?
+                                                <span className="text-danger">
+                                                    Password doesnot match
+                                                </span>
+                                                :
+                                                null
+                                        }
                                     </div>
 
                                     <div className="form-group">
@@ -184,13 +217,22 @@ console.log(isinFormValid)
                                         formError.emptyFields != "" ?
 
                                             <div className="alert alert-danger" role="alert">
-                                                This is a danger alert—check it out!
+                                                {formError.emptyFields}
+                                            </div>
+                                            :
+                                            null
+                                    }
+                                    {
+                                        isError ?
+
+                                            <div className="alert alert-danger" role="alert">
+                                                {errorMessage}
                                             </div>
                                             :
                                             null
                                     }
 
-                                    <button disabled={isinFormValid} className="btn btn-success block full-width m-b" onClick={this.signUp}  >Signup</button>
+                                    <button className="btn btn-success block full-width m-b" onClick={this.signUp}  >Signup</button>
 
                                     <label className="alert-link" />
                                     <div className="" id="divError" visible="false">
