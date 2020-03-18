@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import './Login.css';
-import { userType, emailRegex } from '../../helper/systemConstants';
+import { userType, emailRegex, stringIsEmpty } from '../../helper/systemConstants';
 import { userSignUp } from "./authServices";
 
 

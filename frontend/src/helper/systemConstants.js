@@ -20,3 +20,7 @@ export const userType = [
 export const baseURL = "https://us-central1-testproject-98a49.cloudfunctions.net"
 
 export const emailRegex = RegExp(/^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i);
+
+export const stringIsEmpty = (str) => {
+    return (!str || /^\s*$/.test(str));
+};
