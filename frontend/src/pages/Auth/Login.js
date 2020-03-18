@@ -16,40 +16,93 @@ class Login extends Component {
             password: '',
             errorEmail: false,
             errorPassword: false,
+            emailErrorMessaga: '',
+            passwordErrorMessage: '',
             ResponseData: undefined
         }
         this.Login = this.Login.bind(this)
         this.signUp = this.signUp.bind(this)
         this.onChangeState = this.onChangeState.bind(this)
     }
+
+    EmptyFields(e) {
+        if (e.target.name == "email" && e.target.value != "") {
+            this.setState({
+                errorEmail: false
+            })
+        }
+        if (e.target.name == "password" && e.target.value != "") {
+            this.setState({
+                errorPassword: false
+            })
+        }
+    }
     onChangeState(e) {
+        this.EmptyFields(e);
+        // console.log("password",password);
         this.setState({
-            [e.target.name]: e.target.value
+            [e.target.name]: e.target.value,
+            invalidCrediential: ''
         })
     }
+
+
     Login = async () => {
-        var isError = false;
-        console.log('email', this.state.email)
-        console.log('password', this.state.password)
-        if (stringIsEmpty(this.state.email)) {
-            this.setState({
-                errorEmail: true
-            })
-            isError = true;
-        }
-        if (stringIsEmpty(this.state.password)) {
-            this.setState({
-                errorPassword: true
-            })
-            isError = true;
-        }
-        if (!isError) {
-            let obj = {
-                email: this.state.email,
-                password: this.state.password
+        try {
+            var isError = false;
+
+            if (stringIsEmpty(this.state.email)) {
+                this.setState({
+                    errorEmail: true
+                })
+                isError = true;
             }
-            var response = await userLogin(obj);
-            history.push('/')
+            if (stringIsEmpty(this.state.password)) {
+                this.setState({
+                    errorPassword: true
+                })
+                isError = true;
+            }
+            if (!stringIsEmpty(this.state.email) && !emailRegex.test(this.state.email)) {
+                this.setState({
+                    errorEmail: true,
+                    emailErrorMessaga: 'E-mail is not valid.'
+                })
+                isError = true;
+            }
+            if (!stringIsEmpty(this.state.password) && this.state.password.length < 8) {
+                this.setState({
+                    errorPassword: true,
+                    passwordErrorMessage: 'Password must be greater than 8 characters.'
+                })
+                isError = true;
+            }
+            if (!isError) {
+                let obj = {
+                    email: this.state.email,
+                    password: this.state.password
+                }
+                var response = await userLogin(obj);
+                console.log("response", response);
+                console.log("response", response.data.data.isVerified);
+                if (response.data.code == 422) {
+                    this.setState({
+                        invalidCrediential: response.data.data.message
+                    })
+                }
+                else if (response.data.data.isVerified == false) {
+                    this.setState({
+                        invalidCrediential: "Email is not varified."
+                    })
+                }
+                else {
+
+                    history.push('/')
+                }
+            }
+        }
+        catch (e) {
+            console.log("Login Exception", e)
         }
     }
     signUp = () => {
@@ -74,11 +127,9 @@ class Login extends Component {
 
                                     <div className="form-group" >
                                         <input name="email" type="email" value={this.state.email}
-                                            onChange={() => {
-                                                this.onChangeState()
-                                                this.setState({ errorEmail: false })
-                                            }
-                                            } className="form-control" placeholder="Username" />
+                                            onChange={this.onChangeState}
+
+                                            className="form-control" placeholder="Username" />
                                         {this.state.errorEmail &&
                                             <div style={{ color: "red", position: 'relative', height: 10, top: -30, float: 'right', width: 20 }}>
                                                 <p style={{ textAlign: 'center' }}>*</p>
@@ -87,29 +138,32 @@ class Login extends Component {
                                     </div>
 
 
-                                    {/* {this.state.errorEmail &&
-                                        <div className="alert-danger" id="divError" visible="true">
-                                            <p className="text-danger pl-1">{Messages.EmptyEmail}</p>
+                                    {this.state.errorEmail &&
+                                        <div className="" id="divError" visible="true">
+                                            <p className="text-danger pl-1">{this.state.emailErrorMessaga}</p>
                                         </div>
-                                    } */}
+                                    }
                                     <div className="form-group">
                                         <input name="password" value={this.state.password}
-                                            onChange={() => {
-                                                this.onChangeState()
-                                                this.setState({ errorPassword: false })
-                                            }
-                                            } type="Password" className="form-control" placeholder="Password" />
+                                            onChange={this.onChangeState}
+
+                                            type="Password" className="form-control" placeholder="Password" />
                                         {this.state.errorPassword &&
                                             <div style={{ color: "red", position: 'relative', top: -30, height: 10, float: 'right', width: 20 }}>
                                                 <p style={{ textAlign: 'center' }}>*</p>
                                             </div>
                                         }
                                     </div>
-                                    {/* {this.state.errorPassword &&
-                                        <div className="alert-danger" id="divError" visible="true">
-                                            <p className="text-danger pl-1">{Messages.EmptyPassword}</p>
+                                    {this.state.errorPassword &&
+                                        <div className="" id="divError" visible="true">
+                                            <p className="text-danger pl-1">{this.state.passwordErrorMessage}</p>
                                         </div>
-                                    } */}
+                                    }
+                                    {this.state.invalidCrediential != "" &&
+                                        <div className="" id="divError" visible="true">
+                                            <p className="text-danger pl-1">{this.state.invalidCrediential}</p>
+                                        </div>
+                                    }
                                     <button className="btn btn-outline-success block full-width m-b" onClick={this.Login}>Login</button>
 
                                     <button className="btn btn-outline-danger block full-width m-b float-right" onClick={this.signUp}  >Signup</button>
