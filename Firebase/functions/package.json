@@ -9,12 +9,6 @@
     "deploy": "firebase deploy --only functions",
     "logs": "firebase functions:log"
   },
-  "functions": {
-    "predeploy": [
-      "npm --prefix ./functions/ run lint",
-      "npm --prefix ./functions/ run build"
-    ]
-  },
   "engines": {
     "node": "8"
   },

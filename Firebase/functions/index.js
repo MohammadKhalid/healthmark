@@ -39,23 +39,26 @@ exports.users = functions.https.onRequest((req, res) => {
 
 //Login User Firebase Auth
 
-exports.loginUser = functions.https.onRequest((req, res) => {
+exports.loginUser = functions.https.onRequest(async (req, res) => {
   let {
     email,
     password,
   } = req.body
-  firebase.auth().signInWithEmailAndPassword(email, password)
-    .then((signedinUser) => {
-      var userid = signedinUser.user.uid;
-      admin.firestore().collection('Users').doc(userid).get()
-        .then((snapshot) => {
-          return res.send(snapshot.data());
-        })
-    }).catch(e => {
-      return res.send({ error: e })
-    })
-})
+  var user = await firebase.auth().signInWithEmailAndPassword(email, password)
 
+    .catch(e => {
+      return res.send({
+        code: 422,
+        data: e
+      })
+    })
+  var userid = user.user.uid
+  var response = await admin.firestore().collection('Users').doc(userid).get()
+  return res.send({
+    code: 200,
+    data: response.data()
+  })
+})
 
 exports.createUser = functions.https.onRequest((req, res) => {
   let {
@@ -71,6 +74,8 @@ exports.createUser = functions.https.onRequest((req, res) => {
   }).then(userRecord => {
     var userResponse = userRecord.toJSON()
     req.body.uid = userResponse.uid;
+    req.body.isActive = false
+    req.body.isVerified = false
     var response = admin.firestore().collection('Users').doc(userResponse.uid).set(req.body)
     return res.send({
       code: 200,
@@ -103,22 +108,5 @@ exports.updateUser = functions.https.onRequest(async (req, res) => {
 
 
 
-
-
-
-
-
-// //Add User 
-// exports.addUser = functions.https.onRequest(async (req, res) => {
-//   let {
-//     name,
-//     email,
-//     password,
-//     userType,
-//     phone,
-//   } = req.body
-//   var response = await admin.firestore().collection('Users').add(req.body)
-//   res.json({ response })
-// })
 
 
