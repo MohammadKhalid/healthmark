@@ -2,6 +2,12 @@ import React, { Component } from 'react';
 
 import { Bar, Doughnut, Line, Pie, Polar, Radar } from 'react-chartjs-2';
 import { Card, CardBody, CardColumns, CardHeader } from 'reactstrap';
+
+import * as Utilities from '../../helper/Utilities';
+import history from '../../History';
+import Storage from '../../helper/Storage';
+
+
 const line = {
   labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
   datasets: [
@@ -148,13 +154,32 @@ const options = {
   maintainAspectRatio: false
 }
 export default class Dashboard extends Component {
-    // constructor(props) {
-    //     super(props);
-    // }
-    render() {
-     return (
-            <div id="App">
-                 <div className="row tile_count bg-white m-2" >
+  constructor(props) {
+    super(props);
+    this.state = {
+      currentRoute: '/Login'
+    }
+    this.UserSession();
+  }
+  UserSession = () => {
+    Utilities.localStorage_GetKey("userObject")
+      .then(response => {
+        if (response != null) {
+          Storage.userObject = JSON.parse(response);
+          history.push("/")
+        }
+        else {
+
+          history.push("/Login")
+        }
+      })
+
+  }
+  render() {
+
+    return (
+      <div id="App">
+        <div className="row tile_count bg-white m-2" >
           <div className="col-md-2 col-sm-4 col-xs-6 tile_stats_count">
             <span className="count_top"><i className="fa fa-user"></i> Total Users</span>
             <div className="count">2500</div>
@@ -284,8 +309,8 @@ export default class Dashboard extends Component {
           </Card>
         </CardColumns>
 
-            </div>
-        );
-    }
+      </div>
+    );
+  }
 }
 

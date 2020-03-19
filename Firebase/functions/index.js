@@ -26,7 +26,9 @@ exports.users = functions.https.onRequest((req, res) => {
       var AllUsers = []
       snapshot.forEach(doc => {
         var obj = doc.data();
-        obj.id = doc.id
+        obj.uid = doc.id
+        delete obj.password;
+        delete obj.conformpassword
         AllUsers.push(obj);
       })
       return res.send(AllUsers)

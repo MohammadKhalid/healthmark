@@ -4,14 +4,13 @@ import history from '../../History';
 import { userType, emailRegex, stringIsEmpty } from '../../helper/systemConstants';
 import Messages from '../../helper/Messages';
 import { userLogin } from "./authServices";
-
+import * as Utilities from '../../helper/Utilities';
+import Storage from '../../helper/Storage';
 class Login extends Component {
     constructor(props) {
         super(props);
         this.state = {
             data: '',
-            // email: 'maaz@gmail.com',
-            // password: '123123',
             email: '',
             password: '',
             errorEmail: false,
@@ -39,7 +38,6 @@ class Login extends Component {
     }
     onChangeState(e) {
         this.EmptyFields(e);
-        // console.log("password",password);
         this.setState({
             [e.target.name]: e.target.value,
             invalidCrediential: ''
@@ -83,8 +81,6 @@ class Login extends Component {
                     password: this.state.password
                 }
                 var response = await userLogin(obj);
-                console.log("response", response);
-                console.log("response", response.data.data.isVerified);
                 if (response.data.code == 422) {
                     this.setState({
                         invalidCrediential: response.data.data.message
@@ -96,7 +92,15 @@ class Login extends Component {
                     })
                 }
                 else {
+                    let userObject = {
+                        email: response.data.data.email,
+                        userName: response.data.data.name,
+                        phone: response.data.data.phone,
+                        userId: response.data.data.uid
+                    }
+                    Storage.userObject = userObject
 
+                    Utilities.localStorage_SaveKey("userObject", JSON.stringify(Storage.userObject))
                     history.push('/')
                 }
             }
