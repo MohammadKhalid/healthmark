@@ -79,6 +79,17 @@ export default class Users extends Component {
     editModalUser() {
         this.toggle();
         this.ModalclearAll();
+        let { user_name, email, modal_varified, edituserid } = this.state
+
+        let payload = {
+            name: user_name,
+            email,
+            isVerified: modal_varified,
+            uid: edituserid
+        }
+
+        console.log(payload)
+        // UserService.userEdit(payload)
         this.setState({
             IsEdit: false
         })

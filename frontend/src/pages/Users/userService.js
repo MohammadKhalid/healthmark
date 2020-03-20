@@ -9,3 +9,7 @@ export function GetAllUsers(){
 export function userLogin(payload){
     return Axios.post(`${baseURL}/loginUser`,payload)
 }
+
+export function userEdit(payload){
+    return Axios.post(`${baseURL}/updateUser`,payload)
+}

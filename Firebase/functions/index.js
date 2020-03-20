@@ -98,9 +98,7 @@ exports.updateUser = functions.https.onRequest(async (req, res) => {
   let {
     uid
   } = req.body
-  let response = await admin.firestore().collection('Users').doc(uid).update({
-    name: "QQQQQQ"
-  }).catch(e => {
+  let response = await admin.firestore().collection('Users').doc(uid).update(req.body).catch(e => {
     return res.send(e)
   })
   return res.send(response)
