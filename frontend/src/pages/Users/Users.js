@@ -283,9 +283,10 @@ export default class Users extends Component {
                                                                 <th className="panel-th1">S.No</th>
                                                                 <th className="panel-th2">Role </th>
                                                                 <th className="panel-th3">User Name </th>
+                                                                <th className="panel-th4">Country </th>
                                                                 <th className="panel-th4">Email (Login-Id)</th>
-                                                                <th className="panel-th5">Varified</th>
-                                                                <th className="panel-th6">Action</th>
+                                                                <th className="panel-th6">Verified</th>
+                                                                <th className="panel-th7">Action</th>
                                                             </tr>
                                                         </thead>
                                                         {this.state.selectedUser.length > 0 &&
@@ -300,6 +301,9 @@ export default class Users extends Component {
                                                                             </td>
                                                                             <td className="project-title text-center">
                                                                                 {val.name}
+                                                                            </td>
+                                                                            <td className="project-title text-center">
+                                                                                {val.country}
                                                                             </td>
                                                                             <td className="project-title text-center">
                                                                                 {val.email}
