@@ -159,21 +159,15 @@ export default class Dashboard extends Component {
     this.state = {
       currentRoute: '/Login'
     }
-    this.UserSession();
+    this.userExist();
+
   }
-  UserSession = () => {
-    Utilities.localStorage_GetKey("userObject")
-      .then(response => {
-        if (response != null) {
-          Storage.userObject = JSON.parse(response);
-          history.push("/")
-        }
-        else {
 
-          history.push("/Login")
-        }
-      })
-
+  userExist = async () => {
+    var response = await Utilities.usersExist('/');
+    this.setState({
+      userObject: response
+    })
   }
   render() {
 
