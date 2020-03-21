@@ -16,6 +16,7 @@ export default class Signup extends Component {
             password: '',
             conformpassword: '',
             phone: '',
+            country: '',
             userTypeSelect: '',
             ResponseData: undefined,
             isinFormValid: true,
@@ -25,6 +26,7 @@ export default class Signup extends Component {
                 name: '',
                 email: '',
                 phone: '',
+                country: '',
                 conformpassword: '',
                 password: '',
                 userTypeSelect: '',
@@ -73,11 +75,11 @@ export default class Signup extends Component {
         })
     }
     signUp() {
-        let { formError, email, phone, conformpassword, password, name, userTypeSelect, isinFormValid, isError, errorMessage } = this.state
+        let { formError, email, phone, country, conformpassword, password, name, userTypeSelect, isinFormValid, isError, errorMessage } = this.state
 
 
         isinFormValid = false
-        if (email === "" || phone === "" || password === "" || name === "" || userTypeSelect === "") {
+        if (email === "" || phone === "" || password === "" || name === "" || userTypeSelect === "" || country === "") {
             formError.emptyFields = "All fileds are required."
             isinFormValid = true
             this.setState({
@@ -92,6 +94,7 @@ export default class Signup extends Component {
             formError.name = ""
             formError.email = ""
             formError.password = ""
+            formError.country = ""
             formError.userTypeSelect = ""
             let userTypeObj = userType.find(x => x.id == userTypeSelect)
             let obj = {
@@ -99,6 +102,7 @@ export default class Signup extends Component {
                 phone,
                 password,
                 name,
+                country,
                 conformpassword,
                 userType: userTypeObj
             }
@@ -146,7 +150,6 @@ export default class Signup extends Component {
 
     render() {
         let { formError, isinFormValid, password, conformpassword, isError, errorMessage } = this.state
-        console.log(formError)
         return (
             <div className=" container-fluid loginColumns animated fadeInDown">
                 <div className="row">
@@ -170,6 +173,17 @@ export default class Signup extends Component {
                                             formError.email !== "" ?
                                                 <span className="text-danger">
                                                     {formError.email}
+                                                </span>
+                                                :
+                                                null
+                                        }
+                                    </div>
+                                    <div className="form-group">
+                                        <input name="country" type="text" value={this.state.country} onChange={this.onChangeState.bind(this)} className="form-control" placeholder="Country" />
+                                        {
+                                            formError.country !== "" ?
+                                                <span className="text-danger">
+                                                    Please enter your country
                                                 </span>
                                                 :
                                                 null
@@ -201,6 +215,14 @@ export default class Signup extends Component {
 
                                     <div className="form-group">
                                         <input name="phone" type="text" value={this.state.phone} onChange={this.onChangeState.bind(this)} className="form-control" placeholder="Phone" />
+                                        {
+                                            formError.phone  !== "" ?
+                                                <span className="text-danger">
+                                                    Please enter your number
+                                                </span>
+                                                :
+                                                null
+                                        }
                                     </div>
 
                                     <div className="form-group">

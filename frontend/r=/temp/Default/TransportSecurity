@@ -26,8 +26,8 @@
    "5taCo4wXdtWo8sPqThjJyPLh3X/i1OfgspUFEi2juV0=": {
       "expect_ct": {
          "expect_ct_enforce": false,
-         "expect_ct_expiry": 1585427830.150661,
-         "expect_ct_observed": 1584823030.150661,
+         "expect_ct_expiry": 1585428072.725294,
+         "expect_ct_observed": 1584823272.725294,
          "expect_ct_report_uri": "https://report-uri.cloudflare.com/cdn-cgi/beacon/expect-ct"
       },
       "expiry": 0.0,

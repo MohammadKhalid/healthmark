@@ -68,6 +68,7 @@ exports.createUser = functions.https.onRequest((req, res) => {
     email,
     password,
     userType,
+    country,
     phone,
   } = req.body
   admin.auth().createUser({
