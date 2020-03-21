@@ -76,7 +76,7 @@ exports.createUser = functions.https.onRequest((req, res) => {
   }).then(userRecord => {
     var userResponse = userRecord.toJSON()
     req.body.uid = userResponse.uid;
-    req.body.isActive = false
+    req.body.isActive = true
     req.body.isVerified = false
     var response = admin.firestore().collection('Users').doc(userResponse.uid).set(req.body)
     return res.send({
@@ -99,9 +99,15 @@ exports.updateUser = functions.https.onRequest(async (req, res) => {
     uid
   } = req.body
   let response = await admin.firestore().collection('Users').doc(uid).update(req.body).catch(e => {
-    return res.send(e)
+    return res.send({
+      code: 500,
+      data: e
+    })
   })
-  return res.send(response)
+  return res.send({
+    code: 200,
+    data: response
+  })
 
 })
 

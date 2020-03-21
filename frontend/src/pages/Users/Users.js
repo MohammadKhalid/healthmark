@@ -41,16 +41,16 @@ export default class Users extends Component {
 
     UserSession = () => {
         Utilities.localStorage_GetKey("userObject")
-          .then(response => {
-            if (response != null) {
-              Storage.userObject = JSON.parse(response);
-              history.push("/Users")
-            }
-            else {
-    
-              history.push("/Login")
-            }
-          })
+            .then(response => {
+                if (response != null) {
+                    Storage.userObject = JSON.parse(response);
+                    history.push("/Users")
+                }
+                else {
+
+                    history.push("/Login")
+                }
+            })
     }
 
     componentWillMount() {
@@ -67,7 +67,8 @@ export default class Users extends Component {
         try {
             var AllUsers = await UserService.GetAllUsers();
             this.setState({
-                GetAllUser: AllUsers.data
+                GetAllUser: AllUsers.data,
+                selectedUser: AllUsers.data
             })
         }
         catch (e) {
@@ -96,7 +97,7 @@ export default class Users extends Component {
     editModalUser() {
         this.toggle();
         this.ModalclearAll();
-        let { user_name, email, modal_varified, edituserid } = this.state
+        let { user_name, email, modal_varified, edituserid, selectedUser } = this.state
 
         let payload = {
             name: user_name,
@@ -106,7 +107,25 @@ export default class Users extends Component {
         }
 
         console.log(payload)
-        // UserService.userEdit(payload)
+        UserService.userEdit(payload)
+            .then(res => {
+                let { code } = res.data
+
+                if (code == 200) {
+                    let filtered = selectedUser.find(x => x.uid == edituserid)
+                    let filteredIndex = selectedUser.findIndex(x => x.uid == edituserid)
+
+                    payload.userType = filtered.userType
+
+                    selectedUser.splice(filteredIndex, 1, payload)
+
+                    this.setState({
+                        selectedUser
+                    })
+                }
+            }).catch(err => {
+                console.log(err)
+            })
         this.setState({
             IsEdit: false
         })
@@ -147,7 +166,8 @@ export default class Users extends Component {
             search_role: 0,
             search_department: 0,
             search_email: '',
-            search_name: ''
+            search_name: '',
+            selectedUser: this.state.GetAllUser
 
         })
     }
@@ -285,8 +305,8 @@ export default class Users extends Component {
                                                                                 {val.email}
                                                                             </td>
                                                                             <td className="project-title text-center " >
-                                                                                <p style={{ color: (val.isVerified) ? "#28a745" : "#dc3545" }}>
-                                                                                    {(val.isVerified) ? 'Yes' : "No"}
+                                                                                <p style={{ color: (val.isVerified == "true") ? "#28a745" : "#dc3545" }}>
+                                                                                    {(val.isVerified == "true") ? 'Yes' : "No"}
                                                                                 </p>
                                                                             </td>
                                                                             <td className="project-actions text-center">
