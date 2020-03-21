@@ -1,3 +1,5 @@
+import history from '../History';
+import Storage from './Storage';
 export let localStorage_SaveKey = async (key, value) => {
     try {
         await localStorage.setItem(key, value);
@@ -49,3 +51,16 @@ export const emailRegex = RegExp(/^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@
 export const stringIsEmpty = (str) => {
     return (!str || /^\s*$/.test(str));
 };
+
+export const usersExist = async (route) => {
+    var response = await localStorage_GetKey("userObject")
+    if (response != null) {
+        Storage.userObject = JSON.parse(response);
+        history.push(route)
+        return Storage.userObject
+    }
+    else {
+        history.push('/Login')
+        return {};
+    }
+}

@@ -96,7 +96,8 @@ class Login extends Component {
                         email: response.data.data.email,
                         userName: response.data.data.name,
                         phone: response.data.data.phone,
-                        userId: response.data.data.uid
+                        userId: response.data.data.uid,
+                        userType:response.data.data.userType
                     }
                     Storage.userObject = userObject
 
