@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-
+import history from '../../History';
 import { slide as Menu } from 'react-burger-menu';
 import { Link } from 'react-router-dom';
 import * as Utilities from '../../helper/Utilities';
@@ -9,13 +9,21 @@ export default class SidebarMenu extends Component {
         this.state = {
             userObject: '',
         }
-        this.userExist();
+        this.UserSession();
     }
-    userExist = async () => {
-        var response = await Utilities.usersExist('/');
-        this.setState({
-            userObject: response
-        })
+    UserSession = () => {
+        Utilities.localStorage_GetKey("userObject")
+            .then(response => {
+                if (response != null) {
+                    Storage.userObject = JSON.parse(response);
+                    this.setState({
+                        userObject: Storage.userObject
+                    })
+                }
+                else {
+                    history.push("/Login")
+                }
+            })
     }
     render() {
         return (
@@ -28,7 +36,7 @@ export default class SidebarMenu extends Component {
                 </div>
                 <div className="sidebar">
                     <ul className="mt-5">
-                        <a className="menu-item" href="/Home"> <li><span className="fa fa-home  pr-2"></span>  Home  </li></a>
+                        <a className="menu-item" href="/Profile"> <li><span className="fa fa-home  pr-2"></span>  Profile  </li></a>
                         <a className="menu-item" href="/"> <li><span className="fa fa-home  pr-2"></span>  laravel  </li></a>
                         <a className="menu-item" href="/"><li><span className="fa fa-home  pr-2"></span>  Angular  </li></a>
                     </ul>

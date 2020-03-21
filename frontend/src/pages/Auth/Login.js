@@ -102,7 +102,7 @@ class Login extends Component {
                     Storage.userObject = userObject
 
                     Utilities.localStorage_SaveKey("userObject", JSON.stringify(Storage.userObject))
-                    history.push('/')
+                    history.replace('/')
                 }
             }
         }

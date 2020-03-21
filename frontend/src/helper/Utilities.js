@@ -56,11 +56,11 @@ export const usersExist = async (route) => {
     var response = await localStorage_GetKey("userObject")
     if (response != null) {
         Storage.userObject = JSON.parse(response);
-        history.push(route)
+        history.replace(route)
         return Storage.userObject
     }
     else {
-        history.push('/Login')
+        history.replace('/Login')
         return {};
     }
 }

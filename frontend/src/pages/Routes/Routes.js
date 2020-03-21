@@ -9,6 +9,10 @@ const Dashboard = Loadable({
     loader: () => import('../Dashboard/Dashboard'),
     loading: Loading,
 });
+const Profile = Loadable({
+    loader: () => import('../Profile/Profile'),
+    loading: Loading,
+});
 const Main = Loadable({
     loader: () => import('../Main/Main'),
     loading: Loading,
@@ -43,11 +47,12 @@ const routes = [
     // { path: '/', exact: true, name: 'Home', component: Home },
     { path: '/', exact: true, name: 'Dashboard', component: Dashboard },
     { path: '/Login', exact: true, name: 'Login', component: Login },
-    { path: '/Signup', exact: true, name: 'Login', component: Signup },
+    { path: '/Signup', exact: true, name: 'Signup', component: Signup },
     { path: '/Users', exact: true, name: 'Users', component: Users },
     { path: '/Inventory', exact: true, name: 'Inventory', component: Inventory },
     { path: '/Customer', exact: true, name: 'Customer', component: Customer },
     { path: '/Order', exact: true, name: 'Order', component: Order },
+    { path: '/Profile', exact: true, name: 'Profile', component: Profile },
    
    
 ];
