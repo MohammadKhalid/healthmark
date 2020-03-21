@@ -3,6 +3,7 @@ import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 // import { SessionManager } from '../Helper/SessionsManager';
 import * as Utilities from '../../helper/Utilities';
 import * as UserService from './userService'
+import history from '../../History';
 export default class Users extends Component {
     constructor(props) {
         super(props);
@@ -35,7 +36,23 @@ export default class Users extends Component {
         this.clearAll = this.clearAll.bind(this);
         this.editModalUser = this.editModalUser.bind(this);
         this.searchUser = this.searchUser.bind(this);
+        this.UserSession()
     }
+
+    UserSession = () => {
+        Utilities.localStorage_GetKey("userObject")
+          .then(response => {
+            if (response != null) {
+              Storage.userObject = JSON.parse(response);
+              history.push("/Users")
+            }
+            else {
+    
+              history.push("/Login")
+            }
+          })
+    }
+
     componentWillMount() {
         // this.props.isSetupUser()
         this.GetAllUser();
