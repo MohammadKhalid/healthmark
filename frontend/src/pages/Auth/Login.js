@@ -94,10 +94,11 @@ class Login extends Component {
                 else {
                     let userObject = {
                         email: response.data.data.email,
-                        userName: response.data.data.name,
+                        name: response.data.data.name,
+                        country: response.data.data.country,
                         phone: response.data.data.phone,
-                        userId: response.data.data.uid,
-                        userType:response.data.data.userType
+                        uid: response.data.data.uid,
+                        userType: response.data.data.userType
                     }
                     Storage.userObject = userObject
 
