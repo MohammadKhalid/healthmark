@@ -1,13 +1,125 @@
 import React, { Component } from 'react';
 import history from '../../History';
-import Messages from '../../helper/Messages';
 import * as Utilities from '../../helper/Utilities';
-import Storage from '../../helper/Storage';
+import * as profileService from './profileService';
 export default class Profile extends Component {
     constructor(props) {
         super(props);
+
+        this.state = {
+            name: '',
+            email: '',
+            country: '',
+            phone: '',
+            uid: '',
+            userType: '',
+            profileImageUrl: '',
+            profileImage: '',
+            profileUpdated: false,
+            isImageSelected: false
+
+        }
+
+        this.getUserDetails = this.getUserDetails.bind(this)
+        this.updateProfile = this.updateProfile.bind(this)
+        this.onChangeFile = this.onChangeFile.bind(this)
+        this.onChangeValue = this.onChangeValue.bind(this)
+        this.cancelImage = this.cancelImage.bind(this)
+        this.uploadImage = this.uploadImage.bind(this)
+        
     }
+
+    componentDidMount() {
+        this.getUserDetails()
+    }
+
+    async getUserDetails() {
+        let userObj = await Utilities.localStorage_GetKey('userObject')
+            .catch(err => {
+                console.log(err)
+            })
+        userObj = JSON.parse(userObj)
+
+        this.setState({
+            name: userObj.name,
+            email: userObj.email,
+            phone: userObj.phone,
+            country: userObj.country,
+            uid: userObj.uid,
+            userType: userObj.userType,
+        })
+    }
+
+    onChangeValue = (e) => {
+        this.setState({
+            [e.target.name]: e.target.value
+        })
+    }
+
+    updateProfile = () => {
+        let { name, phone, country, uid, userType, email, profileUpdated } = this.state
+
+
+        let payload = {
+            name,
+            phone,
+            email,
+            userType,
+            country,
+            uid
+        }
+        profileService.updateProfile(payload)
+            .then((respone) => {
+                let { data, code } = respone.data
+                if (code == 200) {
+                    this.setState({
+                        profileUpdated: true
+                    })
+                    Utilities.localStorage_SaveKey('userObject', JSON.stringify(payload))
+                    setTimeout(() => {
+                        this.setState({
+                            profileUpdated: false
+                        })
+                    }, 5000);
+                }
+            }).catch(err => {
+                console.log(err)
+            })
+    }
+
+    onChangeFile(e) {
+        if (e.target.files.length > 0) {
+            this.setState({
+                [e.target.name]: e.target.files[0],
+                isImageSelected: true
+            })
+        }
+    }
+
+    cancelImage() {
+        this.setState({
+            isImageSelected: false,
+            profileImage: ''
+        })
+    }
+
+    uploadImage() {
+        let { profileImage, uid } = this.state
+        let payload = new FormData
+
+        payload.append('profileImage', profileImage)
+        payload.append('uid', uid)
+
+        profileService.updateProfileImage(payload)
+            .then(res => {
+                console.log(res)
+            }).catch(err => {
+                console.log(err)
+            })
+    }
+
     render() {
+        let { name, country, phone, email, profileUpdated, profileImageUrl, isImageSelected } = this.state
         return (
             <div className="bg-white">
                 <div className="container">
@@ -17,27 +129,39 @@ export default class Profile extends Component {
 
                         <div className="col-md-3">
                             <div className="text-center">
-                                <img src={'assets/images/maaz.jpg'} className="avatar img-circle" alt="avatar" />
-                                <h6>Upload a different photo...</h6>
-
-                                <input type="file" className="form-control" />
+                                <img src={profileImageUrl || 'assets/images/maaz.jpg'} className="avatar img-circle" alt="avatar" />
+                                <input type="file" name="profileImage" onChange={this.onChangeFile} className="form-control" />
+                                {
+                                    isImageSelected ?
+                                        <>
+                                            <input type="button" onClick={this.uploadImage} className="btn btn-primary" value="Upload" />
+                                            <input type="button" onClick={this.cancelImage} className="btn btn-primary" value="Cancel" />
+                                        </>
+                                        :
+                                        null
+                                }
                             </div>
                         </div>
 
 
                         <div className="col-md-9 personal-info">
-                            <div className="alert alert-info alert-dismissable">
-                                <a className="panel-close close" data-dismiss="alert">×</a>
-                                <i className="fa fa-coffee"></i>
-                  This is an <strong>.alert</strong>. Use this to show important messages to the user.
-                </div>
+                            {
+                                profileUpdated ?
+                                    <div className="alert alert-info alert-dismissable">
+                                        <a className="panel-close close" data-dismiss="alert">×</a>
+                                        Profile Updated.
+                                    </div>
+                                    :
+                                    null
+                            }
+
                             <h3>Personal info</h3>
 
                             <form className="form-horizontal" role="form">
                                 <div className="form-group">
                                     <label className="col-lg-3 control-label">User Name:</label>
                                     <div className="col-lg-8">
-                                        <input className="form-control" type="text" value="Maaz" />
+                                        <input className="form-control" name='name' type="text" onChange={this.onChangeValue} value={name || ''} />
                                     </div>
                                 </div>
 
@@ -45,34 +169,27 @@ export default class Profile extends Component {
                                 <div className="form-group">
                                     <label className="col-lg-3 control-label">Email:</label>
                                     <div className="col-lg-8">
-                                        <input className="form-control" type="text" value="maaz@gmail.com" />
+                                        <input disabled className="form-control" type="text" value={email} />
                                     </div>
                                 </div>
 
                                 <div className="form-group">
                                     <label className="col-md-3 control-label">Phone:</label>
                                     <div className="col-md-8">
-                                        <input className="form-control" type="text" value="123456789" />
+                                        <input className="form-control" name="phone" type="text" onChange={this.onChangeValue} value={phone || ''} />
                                     </div>
                                 </div>
                                 <div className="form-group">
-                                    <label className="col-md-3 control-label">Password:</label>
+                                    <label className="col-md-3 control-label">Country:</label>
                                     <div className="col-md-8">
-                                        <input className="form-control" type="password" value="123123123" />
+                                        <input className="form-control" type="text" name="country" onChange={this.onChangeValue} value={country || ''} />
                                     </div>
                                 </div>
-                                <div className="form-group">
-                                    <label className="col-md-3 control-label">Confirm password:</label>
-                                    <div className="col-md-8">
-                                        <input className="form-control" type="password" value="123123123" />
-                                    </div>
-                                </div>
+
                                 <div className="form-group">
                                     <label className="col-md-3 control-label"></label>
                                     <div className="col-md-8">
-                                        <input type="button" className="btn btn-primary" value="Save Changes" />
-                                        <span></span>
-                                        <input type="reset" className="btn btn-default" value="Cancel" />
+                                        <input type="button" className="btn btn-primary" onClick={this.updateProfile} value="Update" />
                                     </div>
                                 </div>
                             </form>

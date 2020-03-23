@@ -19,6 +19,7 @@ var firebaseConfig = {
 }
 firebase.initializeApp(firebaseConfig);
 
+// let storage = firebase.storage()
 //Get AllUsers
 exports.users = functions.https.onRequest((req, res) => {
   admin.firestore().collection('Users').get()
@@ -113,7 +114,37 @@ exports.updateUser = functions.https.onRequest(async (req, res) => {
 })
 
 
+//get specific user
+exports.getSpecificUser = functions.https.onRequest(async (req, res) => {
+
+  let { userId } = req.body
+  var response = await admin.firestore().collection('Users').doc(userId).get()
+    .catch(err => {
+      return res.status(500).send({
+        code: 500,
+        data: err
+      })
+    })
+  let data
+  if (response.data()) {
+    data = response.data()
+  } else {
+    data = {}
+  }
+  return res.send({
+    code: 200,
+    data: response.data(),
+  })
+})
 
 
+//updateProfileImage
+exports.updateProfileImage = functions.https.onRequest(async (req, res) => {
+  let {
+    uid,
+    profileImage
+  } = req.body
 
+  console.log(req.body)
 
+})
