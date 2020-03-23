@@ -72,3 +72,20 @@ exports.updateInventory = functions.https.onRequest(async (req, res) => {
     })
 
 })
+
+exports.deleteInventory = functions.https.onRequest(async (req, res) => {
+    let {
+        productId
+    } = req.body
+    let response = await admin.firestore().collection('Inventory').doc(productId).update(req.body).catch(e => {
+        return res.send({
+            code: 500,
+            data: e
+        })
+    })
+    return res.send({
+        code: 200,
+        data: response
+    })
+
+})

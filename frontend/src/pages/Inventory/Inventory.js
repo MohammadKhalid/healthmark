@@ -18,6 +18,7 @@ export default class Inventory extends Component {
             modal_productRetailPrice: 0,
             modal_productInternalPrice: 0,
             modal_product_value: 0,
+            modal_isActive: true,
             modal_id: 0,
             search_isActive: true,
             search_productName: '',
@@ -57,6 +58,7 @@ export default class Inventory extends Component {
                 GetAllInventory: AllInventory.data.data,
                 selectedUser: AllInventory.data.data
             })
+            console.log("AllInventory", AllInventory.data.data)
         }
         catch (e) {
             console.log("Inventory Service Get All Inventory Exception", e);
@@ -83,13 +85,15 @@ export default class Inventory extends Component {
             modal_productRetailPrice: val.productRetailPrice,
             modal_productInternalPrice: val.productInternalPrice,
             modal_product_value: val.productQty * val.productRetailPrice,
-            modal_id: val.productId
+            modal_id: val.productId,
+            modal_isActive: val.isActive
         })
     }
     editModalUser() {
         this.toggle();
         this.ModalclearAll();
-        let { modal_productName, modal_productQty, modal_productRetailPrice, modal_productInternalPrice, selectedUser, modal_id } = this.state
+        let { modal_productName, modal_isActive, modal_productQty, modal_productRetailPrice, modal_productInternalPrice, selectedUser, modal_id } = this.state
+
         if (modal_productName == "") {
             alert("Enter your Product Name")
             return
@@ -112,16 +116,21 @@ export default class Inventory extends Component {
             productQty: modal_productQty,
             productInternalPrice: modal_productInternalPrice,
             productValue: modal_productQty * modal_productRetailPrice,
-            productId: modal_id
+            productId: modal_id,
+            isActive: modal_isActive
         }
         InventoryService.InventoryEdit(payload)
             .then(res => {
                 let { code } = res.data
                 if (code == 200) {
-                    let filteredIndex = selectedUser.findIndex(x => x.uid == modal_id)
+                    let filteredIndex = selectedUser.findIndex(x => x.productId == modal_id)
                     selectedUser.splice(filteredIndex, 1, payload)
+                    let filteredIndex2 = this.state.GetAllInventory.findIndex(a => a.productId == modal_id)
+
+                    this.state.GetAllInventory.splice(filteredIndex2, 1, payload);
                     this.setState({
-                        selectedUser
+                        selectedUser: selectedUser,
+                        GetAllInventory: this.state.GetAllInventory
                     })
                 }
             }).catch(err => {
@@ -133,6 +142,17 @@ export default class Inventory extends Component {
     }
 
     deleteUser(val) {
+        let payload = val;
+        payload.isActive = false
+        InventoryService.DeleteInventory(payload)
+            .then(res => {
+                let { code } = res.data
+                if (code == 200) {
+                    this.GetAllInventory();
+                }
+            }).catch(err => {
+                console.log(err)
+            })
 
     }
     ModelRoleChange(event) {
@@ -202,7 +222,7 @@ export default class Inventory extends Component {
             search_productInternalPrice: 0,
             search_name: '',
             selectedUser: this.state.GetAllInventory,
-            search_isActive:true
+            search_isActive: true
 
         })
     }
@@ -226,11 +246,14 @@ export default class Inventory extends Component {
             productInternalPrice: parseInt(this.state.search_productInternalPrice),
             search_isActive: this.state.search_isActive
         }
+        console.log("obj", obj);
+        console.log("this.state.GetAllInventory", this.state.GetAllInventory);
         let record = this.state.GetAllInventory.filter(a => a.productName == this.state.search_productName ||
             a.productRetailPrice == obj.productRetailPrice ||
             a.productInternalPrice == this.state.search_productInternalPrice ||
             a.isActive == this.state.search_isActive
         )
+        console.log("record", record);
         if (record.length == 0) {
             this.setState({
                 ErrorMessageRecord: "No Record Found"
@@ -321,37 +344,38 @@ export default class Inventory extends Component {
                                                         {this.state.selectedUser.length > 0 &&
                                                             <tbody>
                                                                 {(this.state.selectedUser.map((val, ind) => {
+                                                                    if (this.state.search_isActive == val.isActive) {
+                                                                        return (
+                                                                            <tr key={ind}>
+                                                                                <td> {ind + 1} </td>
+                                                                                <td className="project-title text-center">
+                                                                                    {val.productName}
+                                                                                </td>
+                                                                                <td className="project-title text-center">
+                                                                                    {val.productRetailPrice}
+                                                                                </td>
+                                                                                <td className="project-title text-center">
+                                                                                    {val.productInternalPrice}
+                                                                                </td>
+                                                                                <td className="project-title text-center">
+                                                                                    {val.productQty}
+                                                                                </td>
+                                                                                <td className="project-title text-center">
+                                                                                    {val.productValue}
+                                                                                </td>
+                                                                                <td className="project-actions text-center">
 
-                                                                    return (
-                                                                        <tr key={ind}>
-                                                                            <td> {ind + 1} </td>
-                                                                            <td className="project-title text-center">
-                                                                                {val.productName}
-                                                                            </td>
-                                                                            <td className="project-title text-center">
-                                                                                {val.productRetailPrice}
-                                                                            </td>
-                                                                            <td className="project-title text-center">
-                                                                                {val.productInternalPrice}
-                                                                            </td>
-                                                                            <td className="project-title text-center">
-                                                                                {val.productQty}
-                                                                            </td>
-                                                                            <td className="project-title text-center">
-                                                                                {val.productValue}
-                                                                            </td>
-                                                                            <td className="project-actions text-center">
+                                                                                    <button onClick={this.editInventory.bind(this, val)} className="btn btn-sm btn-outline-success mb-2 mr-2 ">
+                                                                                        <span aria-hidden="true" className="fa fa-edit btn-outline-success p-1"></span>
+                                                                                    </button>
 
-                                                                                <button onClick={this.editInventory.bind(this, val)} className="btn btn-sm btn-outline-success mb-2 mr-2 ">
-                                                                                    <span aria-hidden="true" className="fa fa-edit btn-outline-success p-1"></span>
-                                                                                </button>
-
-                                                                                <button onClick={this.deleteUser.bind(this, val)} className="btn btn-sm  btn-outline-danger mb-2 ml-2">
-                                                                                    <span aria-hidden="true" class="btn-outline-danger fa fa-trash p-1"></span>
-                                                                                </button>
-                                                                            </td>
-                                                                        </tr>
-                                                                    )
+                                                                                    <button onClick={this.deleteUser.bind(this, val)} className="btn btn-sm  btn-outline-danger mb-2 ml-2">
+                                                                                        <span aria-hidden="true" class="btn-outline-danger fa fa-trash p-1"></span>
+                                                                                    </button>
+                                                                                </td>
+                                                                            </tr>
+                                                                        )
+                                                                    }
                                                                 }))}
                                                             </tbody>
                                                         }
@@ -398,6 +422,24 @@ export default class Inventory extends Component {
                                                 <input type="number" name="modal_productQty" value={this.state.modal_productQty} onChange={this.AddOnChange} className="form-control txt_SearchEmail " /><span class="help-block m-b-none"></span>
                                             </div>
                                         </div>
+                                        {!this.state.modal_isActive &&
+                                            <div className="m-auto">
+                                                <div onChange={() => this.setState({ modal_isActive: !this.state.modal_isActive })}
+                                                    style={{ marginTop: 30 }}>
+                                                    <input name="search_isActive" checked={this.state.modal_isActive} type="checkbox" className="txt_SearchUserName " />
+                                                    <label className="pl-4" for=" ">Active Product</label>
+                                                </div>
+                                            </div>
+                                        }
+
+                                        {this.state.modal_isActive &&
+                                            <div class="alert alert-success" role="alert">
+                                                Active Product
+                                         </div>
+
+                                        }
+
+
                                     </div>
                                 </div>
                             </div>

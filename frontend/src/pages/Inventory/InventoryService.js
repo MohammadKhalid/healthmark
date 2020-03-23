@@ -11,3 +11,6 @@ export function InventoryEdit(payload){
 export function CreateInventory(payload){
     return Axios.post(`${baseURL}/createInventory`,payload)
 }
+export function DeleteInventory(payload){
+    return Axios.post(`${baseURL}/deleteInventory`,payload)
+}
