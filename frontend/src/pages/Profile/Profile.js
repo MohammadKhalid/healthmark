@@ -25,7 +25,8 @@ export default class Profile extends Component {
         this.onChangeFile = this.onChangeFile.bind(this)
         this.onChangeValue = this.onChangeValue.bind(this)
         this.cancelImage = this.cancelImage.bind(this)
-
+        this.uploadImage = this.uploadImage.bind(this)
+        
     }
 
     componentDidMount() {

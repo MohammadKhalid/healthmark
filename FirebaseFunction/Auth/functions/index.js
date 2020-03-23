@@ -19,7 +19,7 @@ var firebaseConfig = {
 }
 firebase.initializeApp(firebaseConfig);
 
-let storage = firebase.storage()
+// let storage = firebase.storage()
 //Get AllUsers
 exports.users = functions.https.onRequest((req, res) => {
   admin.firestore().collection('Users').get()
@@ -145,6 +145,6 @@ exports.updateProfileImage = functions.https.onRequest(async (req, res) => {
     profileImage
   } = req.body
 
-    console.log(profileImage)
+  console.log(req.body)
 
 })
