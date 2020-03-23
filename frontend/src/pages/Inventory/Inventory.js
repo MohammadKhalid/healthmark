@@ -3,8 +3,6 @@ import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 import * as Utilities from '../../helper/Utilities';
 import * as InventoryService from './InventoryService'
 import history from '../../History';
-import { Form, FormGroup, Label, Input } from 'reactstrap';
-// import { SessionManager } from '../Helper/SessionsManager';
 export default class Inventory extends Component {
     constructor(props) {
         super(props);
@@ -267,10 +265,10 @@ export default class Inventory extends Component {
         return (
             <div id="App">
                 <div className="mt-4" style={{ width: '90%', margin: '0 auto' }}>
-                    <div class="container-fluid bg-chart">
-                        <p class="text-light pt-2 pb-2 font-weight-bold cent">Search Inventory</p>
+                    <div className="container-fluid bg-chart">
+                        <p className="text-light pt-2 pb-2 font-weight-bold cent">Search Inventory</p>
                     </div>
-                    <div class="container-fluid  bg-light">
+                    <div className="container-fluid  bg-light">
                         <div className="row">
                             <div className="col-sm-12 " style={{ margin: '0 auto' }}>
                                 <form style={{ marginTop: '40px' }}>

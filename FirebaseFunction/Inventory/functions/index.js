@@ -34,6 +34,7 @@ exports.createInventory = functions.https.onRequest(async (req, res) => {
 
 
 exports.getAllInventory = functions.https.onRequest((req, res) => {
+   
     admin.firestore().collection('Inventory').get()
         .then((snapshot) => {
             var AllInventory = []
