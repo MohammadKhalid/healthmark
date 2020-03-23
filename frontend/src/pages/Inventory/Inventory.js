@@ -3,27 +3,29 @@ import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 import * as Utilities from '../../helper/Utilities';
 import * as InventoryService from './InventoryService'
 import history from '../../History';
+import { Form, FormGroup, Label, Input } from 'reactstrap';
 // import { SessionManager } from '../Helper/SessionsManager';
 export default class Inventory extends Component {
     constructor(props) {
         super(props);
         this.state = {
+
             GetAllInventory: [],
             selectedUser: [],
-            ddl: [],
             modal: false,
+            modal_productName: '',
+            modal_productQty: 0,
+            modal_productRetailPrice: 0,
+            modal_productInternalPrice: 0,
+            modal_product_value: 0,
+            modal_id: 0,
+            search_isActive: true,
             search_productName: '',
             search_productQty: 0,
             search_productRetailPrice: 0,
             search_productInternalPrice: 0,
             search_product_value: 0,
             search_id: 0,
-
-            modal_role: 0,
-            search_role: 0,
-            search_department: 0,
-
-            modal_dapartment: 0,
             edituserid: 0,
             IsEdit: false,
         }
@@ -37,6 +39,7 @@ export default class Inventory extends Component {
         this.clearAll = this.clearAll.bind(this);
         this.editModalUser = this.editModalUser.bind(this);
         this.searchInventory = this.searchInventory.bind(this);
+        this.isActiveCheck = this.isActiveCheck.bind(this);
     }
     componentWillMount() {
         // this.props.isSetupUser()
@@ -66,39 +69,57 @@ export default class Inventory extends Component {
         });
     }
 
-
+    isActiveCheck() {
+        this.setState({
+            search_isActive: !this.state.search_isActive
+        })
+    }
     editInventory(val) {
         this.toggle();
         this.setState({
             IsEdit: true,
-            search_productName: val.productName,
-            search_productQty: val.productQty,
-            search_productRetailPrice: val.productRetailPrice,
-            search_productInternalPrice: val.productInternalPrice,
-            search_product_value: val.productQty * val.productRetailPrice,
-            search_id: val.productId
+            modal_productName: val.productName,
+            modal_productQty: val.productQty,
+            modal_productRetailPrice: val.productRetailPrice,
+            modal_productInternalPrice: val.productInternalPrice,
+            modal_product_value: val.productQty * val.productRetailPrice,
+            modal_id: val.productId
         })
     }
     editModalUser() {
         this.toggle();
         this.ModalclearAll();
-        let { search_productName, search_productQty, search_productRetailPrice, search_productInternalPrice, selectedUser, search_id } = this.state
-
+        let { modal_productName, modal_productQty, modal_productRetailPrice, modal_productInternalPrice, selectedUser, modal_id } = this.state
+        if (modal_productName == "") {
+            alert("Enter your Product Name")
+            return
+        }
+        if (modal_productQty <= 0) {
+            alert("Please correct prodcut Quantity");
+            return
+        }
+        if (modal_productInternalPrice <= 0) {
+            alert("Please corrct the Product Internal Price");
+            return
+        }
+        if (modal_productRetailPrice <= 0) {
+            alert("Please correct the Product Retail Price")
+            return
+        }
         let payload = {
-            productName: search_productName,
-            productRetailPrice: search_productRetailPrice,
-            productQty: search_productQty,
-            productInternalPrice: search_productInternalPrice,
-            productValue: search_productQty * search_productRetailPrice,
-            productId: search_id
+            productName: modal_productName,
+            productRetailPrice: modal_productRetailPrice,
+            productQty: modal_productQty,
+            productInternalPrice: modal_productInternalPrice,
+            productValue: modal_productQty * modal_productRetailPrice,
+            productId: modal_id
         }
         InventoryService.InventoryEdit(payload)
             .then(res => {
                 let { code } = res.data
                 if (code == 200) {
-                    let filteredIndex = selectedUser.findIndex(x => x.uid == search_id)
+                    let filteredIndex = selectedUser.findIndex(x => x.uid == modal_id)
                     selectedUser.splice(filteredIndex, 1, payload)
-
                     this.setState({
                         selectedUser
                     })
@@ -128,8 +149,45 @@ export default class Inventory extends Component {
     }
     AddUser() {
 
+        let { modal_productName, modal_productQty, modal_productRetailPrice, modal_productInternalPrice, } = this.state
+
+        if (modal_productName == "") {
+            alert("Enter your Product Name")
+            return
+        }
+        if (modal_productQty <= 0) {
+            alert("Please correct prodcut Quantity");
+            return
+        }
+        if (modal_productInternalPrice <= 0) {
+            alert("Please corrct the Product Internal Price");
+            return
+        }
+        if (modal_productRetailPrice <= 0) {
+            alert("Please correct the Product Retail Price")
+            return
+        }
+
+        let payload = {
+            productName: modal_productName,
+            productRetailPrice: modal_productRetailPrice,
+            productQty: modal_productQty,
+            productInternalPrice: modal_productInternalPrice,
+            productValue: modal_productQty * modal_productRetailPrice,
+            isActive: true
+        }
+        InventoryService.CreateInventory(payload)
+            .then(res => {
+                let { code } = res.data
+                if (code == 200) {
+                    this.GetAllInventory();
+                }
+            }).catch(err => {
+                console.log(err)
+            })
         this.ModalclearAll();
         this.toggle();
+
 
     }
     AddOnChange(e) {
@@ -139,20 +197,21 @@ export default class Inventory extends Component {
     }
     clearAll() {
         this.setState({
-            search_productName:'',
+            search_productName: '',
             search_productRetailPrice: 0,
             search_productInternalPrice: 0,
             search_name: '',
-            selectedUser: this.state.GetAllInventory
+            selectedUser: this.state.GetAllInventory,
+            search_isActive:true
 
         })
     }
     ModalclearAll() {
         this.setState({
-            modal_role: 0,
-            modal_dapartment: 0,
-            user_name: '',
-            email: ''
+            modal_productName: '',
+            modal_productQty: 0,
+            modal_productRetailPrice: 0,
+            modal_productInternalPrice: 0,
         })
     }
     searchOnchange(e) {
@@ -164,12 +223,19 @@ export default class Inventory extends Component {
         let obj = {
             productName: this.state.search_productName,
             productRetailPrice: parseInt(this.state.search_productRetailPrice),
-            productInternalPrice: parseInt(this.state.search_productInternalPrice)
+            productInternalPrice: parseInt(this.state.search_productInternalPrice),
+            search_isActive: this.state.search_isActive
         }
-        console.log("obj", obj);
-        console.log("this.state.GetAllInventory", this.state.GetAllInventory);
-        let record = this.state.GetAllInventory.filter(a => a.productName == this.state.search_productName || a.productRetailPrice == obj.productRetailPrice || a.productInternalPrice == this.state.search_productInternalPrice)
-        console.log("record",record);
+        let record = this.state.GetAllInventory.filter(a => a.productName == this.state.search_productName ||
+            a.productRetailPrice == obj.productRetailPrice ||
+            a.productInternalPrice == this.state.search_productInternalPrice ||
+            a.isActive == this.state.search_isActive
+        )
+        if (record.length == 0) {
+            this.setState({
+                ErrorMessageRecord: "No Record Found"
+            })
+        }
         this.setState({
             selectedUser: record
         })
@@ -195,12 +261,17 @@ export default class Inventory extends Component {
                                             <label for=" ">Product Retail Price</label>
                                             <input name="search_productRetailPrice" value={this.state.search_productRetailPrice} onChange={this.searchOnchange} type="number" className="form-control txt_SearchUserName " />
                                         </div>
-
                                         <div className="col-sm-3">
                                             <label for=" ">Product Internal Price</label>
                                             <input name="search_productInternalPrice" value={this.state.search_productInternalPrice} onChange={this.searchOnchange} type="number" className="form-control txt_SearchUserName " />
                                         </div>
-
+                                        <div className="m-auto">
+                                            <div onChange={this.isActiveCheck}
+                                                style={{ marginTop: 30 }}>
+                                                <input name="search_isActive" checked={this.state.search_isActive} type="checkbox" className="txt_SearchUserName " />
+                                                <label className="pl-4" for=" ">Active Product</label>
+                                            </div>
+                                        </div>
 
                                     </div>
                                 </form>
@@ -245,6 +316,8 @@ export default class Inventory extends Component {
                                                                 <th className="panel-th2">Action</th>
                                                             </tr>
                                                         </thead>
+
+
                                                         {this.state.selectedUser.length > 0 &&
                                                             <tbody>
                                                                 {(this.state.selectedUser.map((val, ind) => {
@@ -283,6 +356,9 @@ export default class Inventory extends Component {
                                                             </tbody>
                                                         }
                                                     </table>
+                                                    {this.state.selectedUser.length == 0 &&
+                                                        <p style={{ textAlign: 'center' }}>No Record Found</p>
+                                                    }
                                                 </div>
                                             </div>
                                         </div>
@@ -301,25 +377,25 @@ export default class Inventory extends Component {
                                         <div class="form-group">
                                             <label class="col-lg-12">Product Name </label>
                                             <div class="col-lg-12">
-                                                <input type="text" name="search_productName" value={this.state.search_productName} onChange={this.AddOnChange} className="form-control txt_SearchEmail " /><span class="help-block m-b-none"></span>
+                                                <input type="text" name="modal_productName" value={this.state.modal_productName} onChange={this.AddOnChange} className="form-control txt_SearchEmail " /><span class="help-block m-b-none"></span>
                                             </div>
                                         </div>
                                         <div class="form-group">
                                             <label class="col-lg-12">Product Retail Price </label>
                                             <div class="col-lg-12">
-                                                <input type="number" name="search_productRetailPrice" value={this.state.search_productRetailPrice} onChange={this.AddOnChange} className="form-control txt_SearchEmail " /><span class="help-block m-b-none"></span>
+                                                <input type="number" name="modal_productRetailPrice" value={this.state.modal_productRetailPrice} onChange={this.AddOnChange} className="form-control txt_SearchEmail " /><span class="help-block m-b-none"></span>
                                             </div>
                                         </div>
                                         <div class="form-group">
                                             <label class="col-lg-12">Product Internal Price </label>
                                             <div class="col-lg-12">
-                                                <input type="number" name="search_productInternalPrice" value={this.state.search_productInternalPrice} onChange={this.AddOnChange} className="form-control txt_SearchEmail " /><span class="help-block m-b-none"></span>
+                                                <input type="number" name="modal_productInternalPrice" value={this.state.modal_productInternalPrice} onChange={this.AddOnChange} className="form-control txt_SearchEmail " /><span class="help-block m-b-none"></span>
                                             </div>
                                         </div>
                                         <div class="form-group">
                                             <label class="col-lg-12">Product Quantity </label>
                                             <div class="col-lg-12">
-                                                <input type="number" name="search_productQty" value={this.state.search_productQty} onChange={this.AddOnChange} className="form-control txt_SearchEmail " /><span class="help-block m-b-none"></span>
+                                                <input type="number" name="modal_productQty" value={this.state.modal_productQty} onChange={this.AddOnChange} className="form-control txt_SearchEmail " /><span class="help-block m-b-none"></span>
                                             </div>
                                         </div>
                                     </div>

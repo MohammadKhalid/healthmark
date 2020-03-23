@@ -8,3 +8,6 @@ export function GetAllInventory() {
 export function InventoryEdit(payload){
     return Axios.post(`${baseURL}/updateInventory`,payload)
 }
+export function CreateInventory(payload){
+    return Axios.post(`${baseURL}/createInventory`,payload)
+}
