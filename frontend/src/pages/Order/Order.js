@@ -1,23 +1,22 @@
 import React, { Component } from 'react';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
+import * as Utilities from '../../helper/Utilities';
+
 // import { SessionManager } from '../Helper/SessionsManager';
+import * as orderService from "./orderService"
 export default class Order extends Component {
     constructor(props) {
         super(props);
         this.state = {
             GetAllUser: [],
             selectedUser: [],
+            allProducts: [],
+            orderNumber: '',
+            selectedProducts: [],
+            errorArray: [],
+            isFormOrderValid: true,
             ddl: [],
             modal: false,
-            user_name: '',
-            email: '',
-            search_name: '',
-            search_email: '',
-            modal_role: 0,
-            search_role: 0,
-            search_department: 0,
-
-            modal_dapartment: 0,
             edituserid: 0,
             IsEdit: false,
         }
@@ -31,20 +30,25 @@ export default class Order extends Component {
         this.clearAll = this.clearAll.bind(this);
         this.editModalUser = this.editModalUser.bind(this);
         this.searchUser = this.searchUser.bind(this);
+        this.fetchProducts = this.fetchProducts.bind(this)
     }
-    componentWillMount() {
+    componentDidMount() {
         // this.props.isSetupUser()
-        this.GetAllUser();
-        this.DropDownListAPI();
+        this.fetchProducts()
     }
 
-    DropDownListAPI() {
-
+    fetchProducts() {
+        orderService.getAllproducts()
+            .then(res => {
+                let { code, data } = res.data
+                this.setState({
+                    allProducts: data
+                })
+            }).catch(err => {
+                console.log(err)
+            })
     }
 
-    GetAllUser() {
-
-    }
     toggle() {
         this.setState({
             modal: !this.state.modal
@@ -79,10 +83,46 @@ export default class Order extends Component {
     SearchDepartmentChange(event) {
         this.setState({ search_department: event.target.value });
     }
-    AddUser() {
+    addOrder() {
+        let { orderNumber, selectedProducts, isFormOrderValid, errorArray } = this.state
 
-        this.ModalclearAll();
-        this.toggle();
+        errorArray = []
+        if (orderNumber == '') {
+            isFormOrderValid = false
+            errorArray.push("Please enter order number.")
+        } else {
+            isFormOrderValid = true
+            errorArray = []
+        }
+
+        if (selectedProducts.length == 0) {
+            isFormOrderValid = false
+            errorArray.push("Please select some products.")
+        } else {
+            isFormOrderValid = true
+            errorArray = []
+        }
+
+        this.setState({
+            errorArray,
+            isFormOrderValid
+        })
+
+        if (isFormOrderValid) {
+            // let obj = {
+            //     date,
+            //     selectedProducts,
+            //     orderNumber
+            // }
+            // orderService.addOrder(obj)
+            //     .then(res => {
+
+            //     }).catch(err => {
+
+            //     })
+            this.ModalclearAll();
+            this.toggle();
+        }
 
     }
     AddOnChange(e) {
@@ -101,11 +141,9 @@ export default class Order extends Component {
     }
     ModalclearAll() {
         this.setState({
-            modal_role: 0,
-            modal_dapartment: 0,
-            user_name: '',
-            email: ''
-
+            selectedProducts: [],
+            orderNumber: '',
+            errorArray: []
         })
     }
     searchOnchange(e) {
@@ -116,8 +154,108 @@ export default class Order extends Component {
     searchUser() {
 
     }
+
+    onChangeSelectedProducts(product, event) {
+        let { selectedProducts } = this.state
+        let checked = event.target.checked
+        if (checked) {
+            let obj = {
+                productId: product.productId,
+                productName: product.productName,
+                productRetailPrice: product.productRetailPrice,
+                discountType: '',
+                discount: 0,
+                quantity: 0,
+                totalPrice: 0
+            }
+            selectedProducts.push(obj)
+            this.setState({
+                selectedProducts: selectedProducts
+            })
+        } else {
+            let filtered = selectedProducts.filter(x => x.productId != product.productId)
+
+            this.setState({
+                selectedProducts: filtered
+            })
+        }
+    }
+
+    onChangePrice(index, event) {
+        let targetName = event.target.name
+        let { selectedProducts } = this.state
+        let findProduct = selectedProducts[index]
+
+        if (targetName == "discountType") {
+            debugger
+            findProduct.discountType = event.target.value
+            let price = findProduct.totalPrice
+            if (findProduct.discountType == 1) {
+                let discout = findProduct.discount
+                price = price - discout
+                findProduct.totalPrice = price
+            } else {
+
+            }
+        }
+        if (targetName == "discount") {
+            debugger
+            let price = findProduct.totalPrice
+            let discount = event.target.value
+            findProduct.discount = discount
+            if (findProduct.discountType == 1) {
+                if (discount == "") {
+                    findProduct.totalPrice = findProduct.productRetailPrice
+                } else {
+                    price = price - discount
+                    findProduct.totalPrice = price
+                }
+
+            } else {
+                if (discount == "") {
+                    findProduct.totalPrice = findProduct.productRetailPrice
+                } else {
+                    let disPercent = price * (discount / 100)
+                    findProduct.totalPrice = price - disPercent
+                }
+
+            }
+        }
+        if (targetName == "quantity") {
+            let quantity = event.target.value
+            findProduct.quantity = quantity
+            let totalPrice = findProduct.productRetailPrice * quantity
+            findProduct.totalPrice = totalPrice
+            selectedProducts[index] = findProduct
+        }
+        this.setState({
+            selectedProducts
+        })
+
+    }
+
+    renderUserTypeOption() {
+
+        let options = Utilities.discountType.map(x => {
+            return (
+                <option key={x.id} value={x.id}>{x.name}</option>
+            )
+        })
+        return options
+    }
+
+    getTotalQuatity(products) {
+        return products.map(x => x.quantity).reduce((total, current) => parseInt(total) + parseInt(current))
+    }
+
+    getTotalPrice(products) {
+        return products.map(x => x.totalPrice).reduce((total, current) => parseInt(total) + parseInt(current))
+    }
+
     render() {
 
+        let { allProducts, selectedProducts, orderNumber, errorArray, isFormOrderValid } = this.state
+        console.log(selectedProducts)
         let roles = [];
         let department = [];
         let setup_user = [];
@@ -175,9 +313,12 @@ export default class Order extends Component {
                                                         <thead class="bg-chart text-light">
                                                             <tr>
                                                                 <th className="panel-th1">S.No</th>
-                                                                <th className="panel-th3">Order No </th>
-                                                                <th className="panel-th3">Order Detail </th>
-                                                                <th className="panel-th2">Quantity </th>
+                                                                <th className="panel-th3">Order No.</th>
+                                                                <th className="panel-th3">Date</th>
+                                                                <th className="panel-th3">Products</th>
+                                                                <th className="panel-th2">Total Quantity</th>
+                                                                <th className="panel-th2">Total Amount</th>
+                                                                <th className="panel-th2">DisCount</th>
                                                                 <th className="panel-th4">Action</th>
                                                             </tr>
                                                         </thead>
@@ -196,6 +337,12 @@ export default class Order extends Component {
                                                                             </td>
                                                                             <td className="project-title text-center">
                                                                                 {val.Email}
+                                                                            </td>
+                                                                            <td className="project-title text-center">
+                                                                                {val.DepartmentName}
+                                                                            </td>
+                                                                            <td className="project-title text-center">
+                                                                                {val.DepartmentName}
                                                                             </td>
                                                                             <td className="project-title text-center">
                                                                                 {val.DepartmentName}
@@ -224,40 +371,123 @@ export default class Order extends Component {
                             </div>
                         </div>
                     </div>
-                    <Modal isOpen={this.state.modal} toggle={this.toggle} className={this.props.className}>
-                        <ModalHeader className="modal-header bg-chart text-light container center" toggle={this.toggle}>Add Edit/User</ModalHeader>
+                    <Modal isOpen={this.state.modal} toggle={this.toggle} size={"lg"} className={this.props.className}>
+                        <ModalHeader className="modal-header bg-chart text-light container center" toggle={this.toggle}>Add/Edit Order</ModalHeader>
                         <ModalBody className="modal-body">
                             <div class="form-horizontal">
                                 <div class="form-group">
                                     <div class="modal-body" style={{ paddingBottom: '10px', borderBottomWidth: '10px', paddingTop: '10px', height: 'auto' }}>
                                         <input name="ctl00$MainContent$hfModalId" type="hidden" id="MainContent_hfModalId" class="MainContent_hfModalId" />
                                         <div class="form-group">
-                                            {/* <div class="col-lg-12">
-                                                <label for="exampleInputPassword2">Item Category </label>
-                                                <span id="MainContent_RequiredFieldValidator5" style={{ color: 'Red', display: 'none' }}></span>
-                                                <select className="form-control" value={this.state.modal_role} onChange={this.ModelRoleChange}>
-                                                    <option value={0}>--Select--</option>
-                                                    <option value={0}>Category 1</option>
-                                                    <option value={0}>Category 2</option>
-                                                    <option value={0}>Category 3</option>
 
-                                                </select>
-                                            </div> */}
+                                            {
+                                                !isFormOrderValid ?
+                                                    <div className="alert alert-danger">
+                                                        <ul>
+                                                            {
+                                                                errorArray.map((x, ind) => {
+                                                                    return (
+                                                                        <li key={ind}>
+                                                                            {x}
+                                                                        </li>
+                                                                    )
+                                                                })
+                                                            }
+                                                        </ul>
+                                                    </div>
+                                                    :
+                                                    null
+                                            }
 
                                             <label class="col-lg-12">Order Number</label>
                                             <div class="col-lg-12">
-                                                <input type="email" name="user_name" value={this.state.user_name} onChange={this.AddOnChange} className="form-control txt_SearchEmail " /><span class="help-block m-b-none"></span>
+                                                <input type="text" name="orderNumber" value={orderNumber} onChange={this.AddOnChange} className="form-control txt_SearchEmail " /><span class="help-block m-b-none"></span>
                                             </div>
+                                            <label className="col-lg-12">Products List</label>
 
-                                            <label class="col-lg-12">Order Detail</label>
-                                            <div class="col-lg-12">
-                                                <input type="email" name="user_name" value={this.state.user_name} onChange={this.AddOnChange} className="form-control txt_SearchEmail " /><span class="help-block m-b-none"></span>
-                                            </div>
+                                            {
+                                                allProducts.map((row, ind) => {
+                                                    return (
+                                                        <div key={ind} class="col-lg-2 form-check form-check-inline">
+                                                            <input class="form-check-input" onChange={this.onChangeSelectedProducts.bind(this, row)} type="checkbox" id="inlineCheckbox1" value={row.productId} />
+                                                            <label class="form-check-label" >{row.productName}</label>
+                                                        </div>
+                                                    )
+                                                })
+                                            }
 
-                                            <label class="col-lg-12">Quantity</label>
-                                            <div class="col-lg-12">
-                                                <input type="email" name="user_name" value={this.state.user_name} onChange={this.AddOnChange} className="form-control txt_SearchEmail " /><span class="help-block m-b-none"></span>
-                                            </div>
+
+                                            <label class="col-lg-12">Order Details</label>
+
+                                            <table class="table">
+                                                <thead class="thead-dark">
+                                                    <tr>
+                                                        <th scope="col">#</th>
+                                                        <th scope="col">Product Name</th>
+                                                        <th scope="col">Price/Unit</th>
+                                                        <th scope="col">Quantity</th>
+                                                        <th scope="col">Discount Type</th>
+                                                        <th scope="col">Discount Amount</th>
+                                                        <th scope="col">Total</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+
+                                                    {
+                                                        selectedProducts.map((x, ind) => {
+                                                            return (
+                                                                <tr key={ind}>
+                                                                    <th scope="row">{ind + 1}</th>
+                                                                    <td>{x.productName}</td>
+                                                                    <td>{x.productRetailPrice}</td>
+                                                                    <td>
+                                                                        <input name="quantity" type="number" className="form-control" onChange={this.onChangePrice.bind(this, ind)}></input>
+                                                                    </td>
+                                                                    <td>
+                                                                        <select name="discountType" className="form-control" onChange={this.onChangePrice.bind(this, ind)}>
+                                                                            <option value="-1" disabled selected>..</option>
+                                                                            {
+                                                                                this.renderUserTypeOption()
+                                                                            }
+                                                                        </select>
+                                                                    </td>
+                                                                    <td>
+                                                                        <input name="discount" type="number" className="form-control" onChange={this.onChangePrice.bind(this, ind)}></input>
+                                                                    </td>
+                                                                    <td>{x.totalPrice}</td>
+                                                                </tr>
+                                                            )
+                                                        })
+                                                    }
+                                                    {
+                                                        selectedProducts.length > 0 &&
+                                                        <>
+                                                            <tr>
+                                                                <th scope="col"></th>
+                                                                <th scope="col">Total Items</th>
+                                                                <th scope="col"></th>
+                                                                <th scope="col">Quantity</th>
+                                                                <th scope="col"></th>
+                                                                <th scope="col">Discount Amount</th>
+                                                                <th scope="col">Total Amount</th>
+                                                            </tr>
+                                                            <tr>
+                                                                <th scope="col"></th>
+                                                                <th scope="col">{selectedProducts.length}</th>
+                                                                <th scope="col"></th>
+                                                                <th scope="col">{this.getTotalQuatity(selectedProducts)}</th>
+                                                                <th scope="col"></th>
+                                                                <th scope="col">{this.getTotalQuatity(selectedProducts)}</th>
+                                                                <th scope="col">{this.getTotalPrice(selectedProducts)}</th>
+                                                            </tr>
+                                                        </>
+
+                                                    }
+                                                </tbody>
+
+
+                                            </table>
+
                                         </div>
                                     </div>
                                 </div>
@@ -265,11 +495,11 @@ export default class Order extends Component {
                         </ModalBody>
                         <ModalFooter>
                             {(this.state.IsEdit == false) ?
-                                <Button color="primary" onClick={this.AddUser.bind(this)}>Add</Button>
+                                <Button color="primary" onClick={this.addOrder.bind(this)}>Add Order</Button>
                                 :
                                 <Button color="primary" onClick={this.editModalUser.bind(this)}>Edit</Button>
                             }
-                            <Button color="secondary" onClick={() => { this.toggle(); this.ModalclearAll(); }}>Cancel</Button>
+                            {/* <Button color="secondary" onClick={() => { this.toggle(); this.ModalclearAll(); }}>Cancel</Button> */}
                         </ModalFooter>
                     </Modal>
                 </div>

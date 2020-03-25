@@ -44,6 +44,18 @@ export const userType = [
     },
 ]
 
+export const discountType = [
+    {
+        id: 1,
+        name: "Amount"
+    },
+    {
+        id: 2,
+        name: "Percent"
+    },
+
+]
+
 export const baseURL = "https://us-central1-testproject-98a49.cloudfunctions.net"
 
 export const emailRegex = RegExp(/^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i);
