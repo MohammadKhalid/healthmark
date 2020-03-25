@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
+import * as Utilities from '../../helper/Utilities';
+
 // import { SessionManager } from '../Helper/SessionsManager';
 import * as orderService from "./orderService"
 export default class Order extends Component {
@@ -12,7 +14,7 @@ export default class Order extends Component {
             orderNumber: '',
             selectedProducts: [],
             errorArray: [],
-            isFormOrderValid: false,
+            isFormOrderValid: true,
             ddl: [],
             modal: false,
             edituserid: 0,
@@ -161,6 +163,8 @@ export default class Order extends Component {
                 productId: product.productId,
                 productName: product.productName,
                 productRetailPrice: product.productRetailPrice,
+                discountType: '',
+                discount: 0,
                 quantity: 0,
                 totalPrice: 0
             }
@@ -178,17 +182,66 @@ export default class Order extends Component {
     }
 
     onChangePrice(index, event) {
+        let targetName = event.target.name
         let { selectedProducts } = this.state
         let findProduct = selectedProducts[index]
-        let quantity = event.target.value
-        findProduct.quantity = quantity
-        let totalPrice = findProduct.productRetailPrice * quantity
-        findProduct.totalPrice = totalPrice
-        selectedProducts[index] = findProduct
+
+        if (targetName == "discountType") {
+            debugger
+            findProduct.discountType = event.target.value
+            let price = findProduct.totalPrice
+            if (findProduct.discountType == 1) {
+                let discout = findProduct.discount
+                price = price - discout
+                findProduct.totalPrice = price
+            } else {
+
+            }
+        }
+        if (targetName == "discount") {
+            debugger
+            let price = findProduct.totalPrice
+            let discount = event.target.value
+            findProduct.discount = discount
+            if (findProduct.discountType == 1) {
+                if (discount == "") {
+                    findProduct.totalPrice = findProduct.productRetailPrice
+                } else {
+                    price = price - discount
+                    findProduct.totalPrice = price
+                }
+
+            } else {
+                if (discount == "") {
+                    findProduct.totalPrice = findProduct.productRetailPrice
+                } else {
+                    let disPercent = price * (discount / 100)
+                    findProduct.totalPrice = price - disPercent
+                }
+
+            }
+        }
+        if (targetName == "quantity") {
+            let quantity = event.target.value
+            findProduct.quantity = quantity
+            let totalPrice = findProduct.productRetailPrice * quantity
+            findProduct.totalPrice = totalPrice
+            selectedProducts[index] = findProduct
+        }
         this.setState({
             selectedProducts
         })
 
+    }
+
+    renderUserTypeOption() {
+
+        let options = Utilities.discountType.map(x => {
+            return (
+                <option key={x.id} value={x.id}>{x.name}</option>
+            )
+        })
+        return options
     }
 
     getTotalQuatity(products) {
@@ -201,7 +254,7 @@ export default class Order extends Component {
 
     render() {
 
-        let { allProducts, selectedProducts, orderNumber, errorArray } = this.state
+        let { allProducts, selectedProducts, orderNumber, errorArray, isFormOrderValid } = this.state
         console.log(selectedProducts)
         let roles = [];
         let department = [];
@@ -327,19 +380,24 @@ export default class Order extends Component {
                                         <input name="ctl00$MainContent$hfModalId" type="hidden" id="MainContent_hfModalId" class="MainContent_hfModalId" />
                                         <div class="form-group">
 
-                                            <div className="alert alert-danger">
-                                                <ul>
-                                                    {
-                                                        errorArray.map((x, ind) => {
-                                                            return (
-                                                                <li key={ind}>
-                                                                    {x}
-                                                                </li>
-                                                            )
-                                                        })
-                                                    }
-                                                </ul>
-                                            </div>
+                                            {
+                                                !isFormOrderValid ?
+                                                    <div className="alert alert-danger">
+                                                        <ul>
+                                                            {
+                                                                errorArray.map((x, ind) => {
+                                                                    return (
+                                                                        <li key={ind}>
+                                                                            {x}
+                                                                        </li>
+                                                                    )
+                                                                })
+                                                            }
+                                                        </ul>
+                                                    </div>
+                                                    :
+                                                    null
+                                            }
 
                                             <label class="col-lg-12">Order Number</label>
                                             <div class="col-lg-12">
@@ -368,6 +426,8 @@ export default class Order extends Component {
                                                         <th scope="col">Product Name</th>
                                                         <th scope="col">Price/Unit</th>
                                                         <th scope="col">Quantity</th>
+                                                        <th scope="col">Discount Type</th>
+                                                        <th scope="col">Discount Amount</th>
                                                         <th scope="col">Total</th>
                                                     </tr>
                                                 </thead>
@@ -381,7 +441,18 @@ export default class Order extends Component {
                                                                     <td>{x.productName}</td>
                                                                     <td>{x.productRetailPrice}</td>
                                                                     <td>
-                                                                        <input type="number" className="form-control" onChange={this.onChangePrice.bind(this, ind)}></input>
+                                                                        <input name="quantity" type="number" className="form-control" onChange={this.onChangePrice.bind(this, ind)}></input>
+                                                                    </td>
+                                                                    <td>
+                                                                        <select name="discountType" className="form-control" onChange={this.onChangePrice.bind(this, ind)}>
+                                                                            <option value="-1" disabled selected>..</option>
+                                                                            {
+                                                                                this.renderUserTypeOption()
+                                                                            }
+                                                                        </select>
+                                                                    </td>
+                                                                    <td>
+                                                                        <input name="discount" type="number" className="form-control" onChange={this.onChangePrice.bind(this, ind)}></input>
                                                                     </td>
                                                                     <td>{x.totalPrice}</td>
                                                                 </tr>
@@ -396,11 +467,15 @@ export default class Order extends Component {
                                                                 <th scope="col">Total Items</th>
                                                                 <th scope="col"></th>
                                                                 <th scope="col">Quantity</th>
+                                                                <th scope="col"></th>
+                                                                <th scope="col">Discount Amount</th>
                                                                 <th scope="col">Total Amount</th>
                                                             </tr>
                                                             <tr>
                                                                 <th scope="col"></th>
                                                                 <th scope="col">{selectedProducts.length}</th>
+                                                                <th scope="col"></th>
+                                                                <th scope="col">{this.getTotalQuatity(selectedProducts)}</th>
                                                                 <th scope="col"></th>
                                                                 <th scope="col">{this.getTotalQuatity(selectedProducts)}</th>
                                                                 <th scope="col">{this.getTotalPrice(selectedProducts)}</th>
