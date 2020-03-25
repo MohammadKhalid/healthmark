@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 // import { SessionManager } from '../Helper/SessionsManager';
+import Map from '../../helper/Maps';
 export default class Customer extends Component {
     constructor(props) {
         super(props);
@@ -114,7 +115,7 @@ export default class Customer extends Component {
         })
     }
     searchUser() {
-    
+
     }
     render() {
 
@@ -143,15 +144,15 @@ export default class Customer extends Component {
                                                 <option value={1}>Categoty 1</option>
                                                 <option value={2}>Categoty 2</option>
                                                 <option value={3}>Categoty 3</option>
-                                                
+
                                             </select>
                                         </div>
                                         <div className="col-sm-3">
                                             <label for=" ">Item Name</label>
                                             <input name="search_name" value={this.state.search_name} onChange={this.searchOnchange} type="text" className="form-control txt_SearchUserName " />
                                         </div>
-                                     
-                                       
+
+
                                     </div>
                                 </form>
                             </div>
@@ -189,7 +190,7 @@ export default class Customer extends Component {
                                                                 <th className="panel-th1">S.No</th>
                                                                 <th className="panel-th4">Item Category </th>
                                                                 <th className="panel-th4">Item Name </th>
-                                                               <th className="panel-th4">Action</th>
+                                                                <th className="panel-th4">Action</th>
                                                             </tr>
                                                         </thead>
                                                         {this.state.selectedUser.length > 0 &&
@@ -243,23 +244,31 @@ export default class Customer extends Component {
                                     <div class="modal-body" style={{ paddingBottom: '10px', borderBottomWidth: '10px', paddingTop: '10px', height: 'auto' }}>
                                         <input name="ctl00$MainContent$hfModalId" type="hidden" id="MainContent_hfModalId" class="MainContent_hfModalId" />
                                         <div class="form-group">
+                                            <label class="col-lg-12">Customer Id </label>
                                             <div class="col-lg-12">
-                                                <label for="exampleInputPassword2">Item Category </label>
-                                                <span id="MainContent_RequiredFieldValidator5" style={{ color: 'Red', display: 'none' }}></span>
-                                                <select className="form-control" value={this.state.modal_role} onChange={this.ModelRoleChange}>
-                                                    <option value={0}>--Select--</option>
-                                                    <option value={0}>Category 1</option>
-                                                    <option value={0}>Category 2</option>
-                                                    <option value={0}>Category 3</option>
-                                                    
-                                                </select>
+                                                <input type="text" name="modal_customerId" value={this.state.modal_customerId} onChange={this.AddOnChange} className="form-control txt_SearchEmail " /><span class="help-block m-b-none"></span>
                                             </div>
-                          
-                                            <label class="col-lg-12">Item Name </label>
+                                            <label class="col-lg-12">Customer Name </label>
                                             <div class="col-lg-12">
-                                                <input type="email" name="user_name" value={this.state.user_name} onChange={this.AddOnChange} className="form-control txt_SearchEmail " /><span class="help-block m-b-none"></span>
+                                                <input type="text" name="modal_customerName" value={this.state.modal_customerName} onChange={this.AddOnChange} className="form-control txt_SearchEmail " /><span class="help-block m-b-none"></span>
                                             </div>
-                                          
+                                            <label class="col-lg-12">Contact Person </label>
+                                            <div class="col-lg-12">
+                                                <input type="text" name="modal_contactPerson" value={this.state.modal_contactPerson} onChange={this.AddOnChange} className="form-control txt_SearchEmail " /><span class="help-block m-b-none"></span>
+                                            </div>
+                                            <label class="col-lg-12">Contact Number </label>
+                                            <div class="col-lg-12">
+                                                <input type="text" name="modal_contactNumber" value={this.state.modal_contactNumber} onChange={this.AddOnChange} className="form-control txt_SearchEmail " /><span class="help-block m-b-none"></span>
+                                            </div>
+
+                                            <label class="col-lg-12">Product List </label>
+                                            <div class="col-lg-12">
+                                                <input name="search_isActive" checked={this.state.search_isActive} type="checkbox" className="txt_SearchUserName " />
+                                                <label className="pl-4" for=" ">Product Name</label>
+                                            </div>
+
+
+
                                         </div>
                                     </div>
                                 </div>

@@ -244,14 +244,11 @@ export default class Inventory extends Component {
             productInternalPrice: parseInt(this.state.search_productInternalPrice),
             search_isActive: this.state.search_isActive
         }
-        console.log("obj", obj);
-        console.log("this.state.GetAllInventory", this.state.GetAllInventory);
         let record = this.state.GetAllInventory.filter(a => a.productName == this.state.search_productName ||
             a.productRetailPrice == obj.productRetailPrice ||
             a.productInternalPrice == this.state.search_productInternalPrice ||
             a.isActive == this.state.search_isActive
         )
-        console.log("record", record);
         if (record.length == 0) {
             this.setState({
                 ErrorMessageRecord: "No Record Found"
