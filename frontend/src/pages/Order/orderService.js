@@ -5,6 +5,10 @@ export function getAllproducts() {
     return Axios.post(`${baseURL}/getAllInventory`)
 }
 
-export function addOrder() {
-    return Axios.post(`${baseURL}/addOrder`)
+export function getAllOrders() {
+    return Axios.post(`${baseURL}/getAllOrders`)
+}
+
+export function addOrder(payload) {
+    return Axios.post(`${baseURL}/addOrder`,payload)
 }
