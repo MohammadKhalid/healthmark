@@ -19,8 +19,8 @@ var firebaseConfig = {
 }
 firebase.initializeApp(firebaseConfig);
 
-exports.createInventory = functions.https.onRequest(async (req, res) => {
-    var response = await admin.firestore().collection('Inventory').doc().set(req.body).catch(e => {
+exports.addOrder = functions.https.onRequest(async (req, res) => {
+    var response = await admin.firestore().collection('Order').doc().set(req.body).catch(e => {
         return res.send({
             code: 500,
             data: e
@@ -33,19 +33,19 @@ exports.createInventory = functions.https.onRequest(async (req, res) => {
 })
 
 
-exports.getAllInventory = functions.https.onRequest((req, res) => {
-   
-    admin.firestore().collection('Inventory').get()
+exports.getAllOrders = functions.https.onRequest((req, res) => {
+
+    admin.firestore().collection('Order').get()
         .then((snapshot) => {
-            var AllInventory = []
+            var AllOrders = []
             snapshot.forEach(doc => {
                 var obj = doc.data();
-                obj.productId = doc.id
-                AllInventory.push(obj);
+                obj.orderId = doc.id
+                AllOrders.push(obj);
             })
             return res.send({
                 code: 200,
-                data: AllInventory
+                data: AllOrders
             })
         }).catch(err => {
             console.log("err", err);
@@ -57,36 +57,36 @@ exports.getAllInventory = functions.https.onRequest((req, res) => {
 
 })
 
-exports.updateInventory = functions.https.onRequest(async (req, res) => {
-    let {
-        productId
-    } = req.body
-    let response = await admin.firestore().collection('Inventory').doc(productId).update(req.body).catch(e => {
-        return res.send({
-            code: 500,
-            data: e
-        })
-    })
-    return res.send({
-        code: 200,
-        data: response
-    })
+// exports.updateInventory = functions.https.onRequest(async (req, res) => {
+//     let {
+//         productId
+//     } = req.body
+//     let response = await admin.firestore().collection('Inventory').doc(productId).update(req.body).catch(e => {
+//         return res.send({
+//             code: 500,
+//             data: e
+//         })
+//     })
+//     return res.send({
+//         code: 200,
+//         data: response
+//     })
 
-})
+// })
 
-exports.deleteInventory = functions.https.onRequest(async (req, res) => {
-    let {
-        productId
-    } = req.body
-    let response = await admin.firestore().collection('Inventory').doc(productId).update(req.body).catch(e => {
-        return res.send({
-            code: 500,
-            data: e
-        })
-    })
-    return res.send({
-        code: 200,
-        data: response
-    })
+// exports.deleteInventory = functions.https.onRequest(async (req, res) => {
+//     let {
+//         productId
+//     } = req.body
+//     let response = await admin.firestore().collection('Inventory').doc(productId).update(req.body).catch(e => {
+//         return res.send({
+//             code: 500,
+//             data: e
+//         })
+//     })
+//     return res.send({
+//         code: 200,
+//         data: response
+//     })
 
-})
+// })
