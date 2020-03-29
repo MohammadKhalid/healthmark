@@ -15,7 +15,7 @@ export default class Customer extends Component {
         super(props);
         this.state = {
             seletedLocationName: '',
-            seletedLocationAddress: {},
+            seletedLocationAddress: '',
             GetAllCustomer: [],
             GetAllProduct: [],
             selectedUser: [],
@@ -195,7 +195,8 @@ export default class Customer extends Component {
     }
     toggle() {
         this.setState({
-            modal: !this.state.modal
+            modal: !this.state.modal,
+            seletedLocationAddress: ''
         });
     }
 
@@ -289,7 +290,7 @@ export default class Customer extends Component {
                 let { code } = res.data
                 if (code == 200) {
                     this.GetAllCustomer();
-                    this.GetAllInventory();
+                    this.GetAllProduct();
                     this.ModalclearAll();
                     this.toggle();
                 }
@@ -540,7 +541,7 @@ export default class Customer extends Component {
                                             </div>
 
                                             <div className="mb-3" >
-                                                <LocationSearchInput latlng={this.state.seletedLocationAddress.lat + "/" + this.state.seletedLocationAddress.lng} changeAddress={this.changeAddress} />
+                                                <LocationSearchInput latlng={(this.state.seletedLocationAddress != '') ? this.state.seletedLocationAddress.lat + "/" + this.state.seletedLocationAddress.lng : undefined} changeAddress={this.changeAddress} />
                                             </div>
                                         </div>
                                     </div>

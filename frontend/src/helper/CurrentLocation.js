@@ -21,8 +21,23 @@ export class CurrentLocation extends React.Component {
 
         };
     }
-    componentDidUpdate(prevProps, prevState) {
 
+    componentWillReceiveProps(nextprops) {
+        if (nextprops.latlng != undefined) {
+            let lat = nextprops.latlng.split('/')[0];
+            let lng = nextprops.latlng.split('/')[1];
+            this.setState({
+                currentLocation: {
+                    lat: lat,
+                    lng: lng
+                }
+            })
+            this.loadMap();
+        }
+
+
+    }
+    componentDidUpdate(prevProps, prevState) {
         if (prevProps.google !== this.props.google) {
             this.loadMap();
         }
@@ -104,7 +119,6 @@ export class CurrentLocation extends React.Component {
         });
     }
     render() {
-        console.log("this.props.latlng",this.props)
         const style = Object.assign({}, mapStyles.map);
         return (
             <div>
