@@ -5,6 +5,7 @@ import * as moment from 'moment';
 
 // import { SessionManager } from '../Helper/SessionsManager';
 import * as orderService from "./orderService"
+import * as productService from "../Inventory/InventoryService"
 export default class Order extends Component {
     constructor(props) {
         super(props);
@@ -16,11 +17,14 @@ export default class Order extends Component {
             selectedProducts: [],
             errorArray: [],
             isFormOrderValid: true,
+            searchOrderNumber: '',
             allOrders: [],
             ddl: [],
             modal: false,
             edituserid: 0,
             IsEdit: false,
+            orderArray: [],
+            searchDate: ''
         }
         this.toggle = this.toggle.bind(this);
         this.ModelRoleChange = this.ModelRoleChange.bind(this);
@@ -32,6 +36,7 @@ export default class Order extends Component {
         this.clearAll = this.clearAll.bind(this);
         this.editModalUser = this.editModalUser.bind(this);
         this.fetchProducts = this.fetchProducts.bind(this);
+        this.searchOrder = this.searchOrder.bind(this)
 
     }
     componentDidMount() {
@@ -41,7 +46,7 @@ export default class Order extends Component {
     }
 
     fetchProducts() {
-        orderService.getAllproducts()
+        productService.GetAllInventory()
             .then(res => {
                 let { code, data } = res.data
                 this.setState({
@@ -57,7 +62,8 @@ export default class Order extends Component {
             .then(res => {
                 let { code, data } = res.data
                 this.setState({
-                    allOrders: data
+                    allOrders: data,
+                    orderArray: data
                 })
             }).catch(err => {
                 console.log(err)
@@ -118,6 +124,14 @@ export default class Order extends Component {
             errorArray = []
         }
 
+        if (selectedProducts.length == 0 || orderNumber == '') {
+            isFormOrderValid = false
+            errorArray.push("Enter Order number and select products.")
+        } else {
+            isFormOrderValid = true
+            errorArray = []
+        }
+
         this.setState({
             errorArray,
             isFormOrderValid
@@ -126,6 +140,7 @@ export default class Order extends Component {
         if (isFormOrderValid) {
 
             let date = moment().format('YYYY-MM-DD')
+            // let createdAt = moment().to
             let obj = {
                 date: date,
                 selectedProducts,
@@ -151,12 +166,11 @@ export default class Order extends Component {
         })
     }
     clearAll() {
+        let { orderArray } = this.state
         this.setState({
-            search_role: 0,
-            search_department: 0,
-            search_email: '',
-            search_name: ''
-
+            searchOrderNumber: '',
+            searchDate: '',
+            allProducts: orderArray
         })
     }
     ModalclearAll() {
@@ -184,6 +198,7 @@ export default class Order extends Component {
                 discountType: '',
                 discount: 0,
                 quantity: 0,
+                discountPrice: 0,
                 totalPrice: 0
             }
             selectedProducts.push(obj)
@@ -199,51 +214,61 @@ export default class Order extends Component {
         }
     }
 
+    onChangeDiscount(index, event) {
+        let { selectedProducts } = this.state
+        let findProduct = selectedProducts[index]
+        let discount = event.target.value
+        let quantity = findProduct.quantity
+        let price = findProduct.productRetailPrice
+        findProduct.discount = discount
+        price = price * quantity
+        if (findProduct.discountType == 1) {
+            findProduct.totalPrice = price - discount
+            findProduct.discountPrice = discount
+        } else if (findProduct.discountType == 2) {
+            let disPercent = price * (discount / 100)
+            findProduct.discountPrice = disPercent
+            findProduct.totalPrice = price - disPercent
+        }
+        this.setState({
+            selectedProducts
+        })
+    }
+
+    onChangeDiscountType(index, event) {
+        let { selectedProducts } = this.state
+        let findProduct = selectedProducts[index]
+        let discount = findProduct.discount
+        let quantity = findProduct.quantity
+        let price = findProduct.productRetailPrice
+        let discountType = event.target.value
+        price = price * quantity
+        findProduct.discountType = discountType
+
+        if (findProduct.discountType == 1) {
+            findProduct.totalPrice = price - discount
+            findProduct.discountPrice = discount
+        } else if (findProduct.discountType == 2) {
+            let disPercent = price * (discount / 100)
+            findProduct.discountPrice = disPercent
+            findProduct.totalPrice = price - disPercent
+        }
+
+        this.setState({
+            selectedProducts
+        })
+    }
+
     onChangePrice(index, event) {
-        let targetName = event.target.name
         let { selectedProducts } = this.state
         let findProduct = selectedProducts[index]
 
-        if (targetName == "discountType") {
-            findProduct.discountType = event.target.value
-            let price = findProduct.totalPrice
-            if (findProduct.discountType == 1) {
-                let discout = findProduct.discount
-                price = price - discout
-                findProduct.totalPrice = price
-            } else {
+        let quantity = event.target.value
+        findProduct.quantity = quantity
+        let totalPrice = findProduct.productRetailPrice * quantity
+        findProduct.totalPrice = totalPrice
+        selectedProducts[index] = findProduct
 
-            }
-        }
-        if (targetName == "discount") {
-            let price = findProduct.totalPrice
-            let discount = event.target.value
-            findProduct.discount = discount
-            if (findProduct.discountType == 1) {
-                if (discount == "") {
-                    findProduct.totalPrice = findProduct.productRetailPrice * findProduct.quantity
-                } else {
-                    price = price - discount
-                    findProduct.totalPrice = price
-                }
-
-            } else {
-                if (discount == "") {
-                    findProduct.totalPrice = findProduct.productRetailPrice * findProduct.quantity
-                } else {
-                    let disPercent = price * (discount / 100)
-                    findProduct.totalPrice = price - disPercent
-                }
-
-            }
-        }
-        if (targetName == "quantity") {
-            let quantity = event.target.value
-            findProduct.quantity = quantity
-            let totalPrice = findProduct.productRetailPrice * quantity
-            findProduct.totalPrice = totalPrice
-            selectedProducts[index] = findProduct
-        }
         this.setState({
             selectedProducts
         })
@@ -268,10 +293,31 @@ export default class Order extends Component {
         return products.map(x => x.totalPrice).reduce((total, current) => parseInt(total) + parseInt(current))
     }
 
+    getTotalDiscountPrice(products) {
+        return products.map(x => x.discountPrice).reduce((total, current) => parseInt(total) + parseInt(current))
+    }
+
+    searchOrder() {
+        let { searchOrderNumber, searchDate, orderArray } = this.state
+
+        let filtered = []
+
+        if (searchDate) {
+            filtered = orderArray.filter(x => x.date == searchDate)
+        }
+
+        if (searchOrderNumber) {
+            filtered = orderArray.filter(x => x.orderNumber == searchOrderNumber)
+        }
+
+        this.setState({
+            allOrders: filtered
+        })
+    }
+
     render() {
 
-        let { allProducts, selectedProducts, orderNumber, errorArray, isFormOrderValid, allOrders } = this.state
-        console.log(selectedProducts)
+        let { allProducts, selectedProducts, orderNumber, errorArray, isFormOrderValid, allOrders, searchOrderNumber, searchDate } = this.state
         let roles = [];
         let department = [];
         let setup_user = [];
@@ -292,7 +338,11 @@ export default class Order extends Component {
                                     <div className="form-group row mt-2">
                                         <div className="col-sm-3">
                                             <label for=" ">Order Number</label>
-                                            <input name="search_name" value={this.state.search_name} onChange={this.searchOnchange} type="text" className="form-control txt_SearchUserName " />
+                                            <input name="searchOrderNumber" value={searchOrderNumber} onChange={this.searchOnchange} type="text" className="form-control txt_SearchUserName " />
+                                        </div>
+                                        <div className="col-sm-3">
+                                            <label for=" ">Date</label>
+                                            <input name="searchDate" value={searchDate} onChange={this.searchOnchange} type="date" className="form-control txt_SearchUserName " />
                                         </div>
                                     </div>
                                 </form>
@@ -306,7 +356,7 @@ export default class Order extends Component {
                                         <button onClick={this.clearAll} className="btn btn-block btn-sm btn-outline-danger mt-2 float-right">Cancel</button>
                                     </div>
                                     <div className="col-sm-3 float-right">
-                                        <button onClick={this.searchUser} className="btn btn-block  btn-sm  btn-outline-success mt-2 mb-2 float-right">Search</button>
+                                        <button onClick={this.searchOrder} className="btn btn-block  btn-sm  btn-outline-success mt-2 mb-2 float-right">Search</button>
                                     </div>
                                 </div>
                             </div>
@@ -334,7 +384,6 @@ export default class Order extends Component {
                                                                 <th className="panel-th2">Total Quantity</th>
                                                                 <th className="panel-th2">Total Amount</th>
                                                                 <th className="panel-th2">Discount</th>
-                                                                <th className="panel-th3">Products</th>
                                                                 <th className="panel-th4">Action</th>
                                                             </tr>
                                                         </thead>
@@ -358,10 +407,7 @@ export default class Order extends Component {
                                                                                 {this.getTotalPrice(val.selectedProducts)}
                                                                             </td>
                                                                             <td className="project-title text-center">
-
-                                                                            </td>
-                                                                            <td className="project-title text-center">
-                                                                                <a>view</a>
+                                                                                {this.getTotalDiscountPrice(val.selectedProducts)}
                                                                             </td>
                                                                             <td className="project-actions text-center">
 
@@ -460,7 +506,7 @@ export default class Order extends Component {
                                                                         <input name="quantity" type="number" className="form-control" onChange={this.onChangePrice.bind(this, ind)}></input>
                                                                     </td>
                                                                     <td>
-                                                                        <select name="discountType" className="form-control" onChange={this.onChangePrice.bind(this, ind)}>
+                                                                        <select name="discountType" onChange={this.onChangeDiscountType.bind(this, ind)} className="form-control">
                                                                             <option value="-1" disabled selected>..</option>
                                                                             {
                                                                                 this.renderUserTypeOption()
@@ -468,7 +514,7 @@ export default class Order extends Component {
                                                                         </select>
                                                                     </td>
                                                                     <td>
-                                                                        <input name="discount" type="number" className="form-control" onChange={this.onChangePrice.bind(this, ind)}></input>
+                                                                        <input name="discount" type="number" className="form-control" onChange={this.onChangeDiscount.bind(this, ind)}></input>
                                                                     </td>
                                                                     <td>{x.totalPrice}</td>
                                                                 </tr>
@@ -493,7 +539,7 @@ export default class Order extends Component {
                                                                 <th scope="col"></th>
                                                                 <th scope="col">{this.getTotalQuatity(selectedProducts)}</th>
                                                                 <th scope="col"></th>
-                                                                <th scope="col"></th>
+                                                                <th scope="col">{this.getTotalDiscountPrice(selectedProducts)}</th>
                                                                 <th scope="col">{this.getTotalPrice(selectedProducts)}</th>
                                                             </tr>
                                                         </>

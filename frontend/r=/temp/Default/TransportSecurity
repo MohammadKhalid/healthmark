@@ -1,9 +1,9 @@
 {
    "+ccWXqaoHJ9hfuXbleKV6FQUrBlyXAJ31BdqjNQJpHs=": {
-      "expiry": 1616442496.468863,
+      "expiry": 1616958164.277079,
       "mode": "force-https",
       "sts_include_subdomains": false,
-      "sts_observed": 1584906496.468867
+      "sts_observed": 1585422164.277107
    },
    "/VfiBGkIXip4Q8zRkQjWM6M2ec5UAwjM0Pe7EbAVj4o=": {
       "expiry": 1616358996.542969,
@@ -18,10 +18,10 @@
       "sts_observed": 1584822942.322168
    },
    "5EdUoB7YUY9zZV+2DkgVXgho8WUvp+D+6KpeUOhNQIM=": {
-      "expiry": 1616449401.472049,
+      "expiry": 1616958165.456312,
       "mode": "force-https",
       "sts_include_subdomains": false,
-      "sts_observed": 1584913401.472053
+      "sts_observed": 1585422165.456313
    },
    "5taCo4wXdtWo8sPqThjJyPLh3X/i1OfgspUFEi2juV0=": {
       "expect_ct": {
@@ -36,22 +36,22 @@
       "sts_observed": 0.0
    },
    "8/RrMmQlCD2Gsp14wUCE1P8r7B2C5+yE0+g79IPyRsc=": {
-      "expiry": 1616448756.101287,
+      "expiry": 1616935291.344486,
       "mode": "force-https",
-      "sts_include_subdomains": true,
-      "sts_observed": 1584912756.101317
+      "sts_include_subdomains": false,
+      "sts_observed": 1585399291.344488
    },
    "E10e7Gwg5+phsYD4E8qNYFsQySXnIHPAfo4zloUPESc=": {
       "expect_ct": {
          "expect_ct_enforce": false,
-         "expect_ct_expiry": 1585507793.927859,
-         "expect_ct_observed": 1584902993.927859,
+         "expect_ct_expiry": 1586004141.719539,
+         "expect_ct_observed": 1585399341.719539,
          "expect_ct_report_uri": "https://report-uri.cloudflare.com/cdn-cgi/beacon/expect-ct"
       },
-      "expiry": 1600682993.92782,
+      "expiry": 1601179341.719498,
       "mode": "force-https",
       "sts_include_subdomains": true,
-      "sts_observed": 1584902993.927824
+      "sts_observed": 1585399341.719502
    },
    "LAZkYS46RVRcFiZAzmUJrz6TJHBd4nwE6VxPWfPLYHs=": {
       "expiry": 1595799242.399091,
@@ -114,10 +114,10 @@
       "sts_observed": 1584912873.467262
    },
    "nAuqgR4iEWti7SOdT3UHPl6rmZU/DeaIm38P2O2OkgA=": {
-      "expiry": 1616448839.148196,
+      "expiry": 1616935292.983287,
       "mode": "force-https",
       "sts_include_subdomains": false,
-      "sts_observed": 1584912839.148199
+      "sts_observed": 1585399292.983292
    },
    "rrdUKGlQrKXRcc4c8P1P8lMUotKQDMJM39FgQfi+Z7A=": {
       "expiry": 1616441477.931991,

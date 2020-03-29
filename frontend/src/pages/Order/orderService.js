@@ -1,12 +1,8 @@
 import Axios from "axios";
 import { baseURL } from "../../helper/systemConstants";
 
-export function getAllproducts() {
-    return Axios.post(`${baseURL}/getAllInventory`)
-}
-
 export function getAllOrders() {
-    return Axios.post(`${baseURL}/getAllOrders`)
+    return Axios.get(`${baseURL}/getAllOrders`)
 }
 
 export function addOrder(payload) {

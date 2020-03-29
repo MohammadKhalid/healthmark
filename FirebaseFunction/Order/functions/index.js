@@ -35,8 +35,18 @@ exports.addOrder = functions.https.onRequest(async (req, res) => {
 
 exports.getAllOrders = functions.https.onRequest((req, res) => {
 
-    admin.firestore().collection('Order').get()
+    let {
+        page,
+        limit
+    } = req.query
+
+    let offset = page * limit
+    let ordersData = admin.firestore().collection('Order')
+        .limit(limit)
+        .offset(offset)
+        .get()
         .then((snapshot) => {
+
             var AllOrders = []
             snapshot.forEach(doc => {
                 var obj = doc.data();
