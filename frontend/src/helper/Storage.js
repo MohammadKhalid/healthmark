@@ -1,4 +1,6 @@
 export default Storage = {
-    userObject: {}
+    userObject: {},
+    seletedLocationName:'',
+    selectedLocation:{}
 
 }

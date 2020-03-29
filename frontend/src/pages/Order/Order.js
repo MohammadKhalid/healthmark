@@ -187,7 +187,6 @@ export default class Order extends Component {
         let findProduct = selectedProducts[index]
 
         if (targetName == "discountType") {
-            debugger
             findProduct.discountType = event.target.value
             let price = findProduct.totalPrice
             if (findProduct.discountType == 1) {
@@ -199,7 +198,6 @@ export default class Order extends Component {
             }
         }
         if (targetName == "discount") {
-            debugger
             let price = findProduct.totalPrice
             let discount = event.target.value
             findProduct.discount = discount
@@ -259,10 +257,7 @@ export default class Order extends Component {
         let roles = [];
         let department = [];
         let setup_user = [];
-        if (this.state.ddl.length > 0) {
-            roles = this.state.ddl[0].data1
-            department = this.state.ddl[0].data;
-        }
+
         return (
             <div id="App">
                 <div className="mt-4" style={{ width: '90%', margin: '0 auto' }}>

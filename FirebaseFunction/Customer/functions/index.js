@@ -29,3 +29,16 @@ exports.getAllCustomer = functions.https.onRequest((req, res) => {
         })
 
 })
+
+exports.createCustomer = functions.https.onRequest(async (req, res) => {
+    var response = await admin.firestore().collection('Customer').doc().set(req.body).catch(e => {
+        return res.send({
+            code: 500,
+            data: e
+        })
+    })
+    return res.send({
+        code: 200,
+        data: response
+    })
+})
