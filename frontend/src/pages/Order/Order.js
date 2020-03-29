@@ -321,10 +321,7 @@ export default class Order extends Component {
         let roles = [];
         let department = [];
         let setup_user = [];
-        if (this.state.ddl.length > 0) {
-            roles = this.state.ddl[0].data1
-            department = this.state.ddl[0].data;
-        }
+
         return (
             <div id="App">
                 <div className="mt-4" style={{ width: '90%', margin: '0 auto' }}>

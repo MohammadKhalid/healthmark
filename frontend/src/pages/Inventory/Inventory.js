@@ -7,7 +7,8 @@ export default class Inventory extends Component {
     constructor(props) {
         super(props);
         this.state = {
-
+            seletedLocationName:'',
+            seletedLocationAddress:{},
             GetAllInventory: [],
             selectedUser: [],
             modal: false,
@@ -56,8 +57,7 @@ export default class Inventory extends Component {
                 GetAllInventory: AllInventory.data.data,
                 selectedUser: AllInventory.data.data
             })
-            console.log("AllInventory", AllInventory.data.data)
-        }
+       }
         catch (e) {
             console.log("Inventory Service Get All Inventory Exception", e);
         }
