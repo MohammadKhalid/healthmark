@@ -3,17 +3,59 @@ import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 // import { SessionManager } from '../Helper/SessionsManager';
 import Map from '../../helper/Maps';
 import LocationSearchInput from '../../helper/LocationSearchInput';
-
 import * as InventoryService from '../Inventory/InventoryService';
 import * as CustomerService from './CustomerService';
 import DataTable, { createTheme } from 'react-data-table-component';
+const customStyles = {
+    rows: {
+        style: {
+            minHeight: '72px',
 
+        }
+    },
+
+    ExpanableComponent: {
+        style: {
+            backgroundColor: 'green'
+        }
+    },
+    expandableRows: {
+        style: {
+            backgroundColor: "green"
+        }
+    },
+    fixedHeader: {
+        style: {
+            backgroundColor: 'rgb(234, 66, 53)',
+        }
+    },
+    header: {
+        style: {
+            backgroundColor: 'rgb(234, 66, 53)',
+        }
+    },
+    headCells: {
+
+        style: {
+            // marginLeft: -50,
+            backgroundColor: 'rgb(234, 66, 53)',
+            color: "#fff",
+            fontWeight: 'bold',
+            fontSize: 14,
+            textAlign: 'center'
+        },
+    },
+
+};
 export default class Customer extends Component {
 
 
     constructor(props) {
         super(props);
         this.state = {
+            limit: 10,
+            page: 0,
+            totalCount: 0,
             seletedLocationName: '',
             seletedLocationAddress: '',
             GetAllCustomer: [],
@@ -53,6 +95,7 @@ export default class Customer extends Component {
         this.searchUser = this.searchUser.bind(this);
         this.prodcutCheck = this.prodcutCheck.bind(this);
         this.changeAddress = this.changeAddress.bind(this);
+        this.pageChange = this.pageChange.bind(this);
         this.state.ExpanableComponent = ({ data }) => {
             return (
                 <div className="alert alert-secondary">
@@ -84,26 +127,24 @@ export default class Customer extends Component {
             {
                 name: 'Customer Name',
                 selector: 'CustomerName',
-                sortable: true,
+
             },
             {
                 name: 'Contact Person Name ',
                 selector: 'ContactPerson',
-                sortable: true,
-                right: true,
+
             },
             {
                 name: 'Contact Person Number ',
                 selector: 'ContactNumber',
-                sortable: true,
-                right: true,
+
             },
 
 
             {
                 name: 'Country',
                 cell: row => <div><div>{row.customerLocation.country}</div></div>,
-                sortable: true,
+
             },
             {
                 name: 'Action',
@@ -142,7 +183,6 @@ export default class Customer extends Component {
             for (var i = 0; i < Dataset.length; i++) {
                 Dataset[i].checkbox = checkbox
             }
-            console.log("Dataset", Dataset);
             this.setState({
                 GetAllProduct: Dataset,
             })
@@ -154,14 +194,34 @@ export default class Customer extends Component {
 
     GetAllCustomer = async () => {
         try {
-            var AllCustomer = await CustomerService.GetAllCustomer();
+            var payload = {
+                page: this.state.page,
+                limit: this.state.limit
+            }
+            var AllCustomer = await CustomerService.GetAllCustomer(payload);
             this.setState({
                 GetAllCustomer: AllCustomer.data.data,
-                selectedUser: AllCustomer.data.data
+                selectedUser: AllCustomer.data.data,
+                totalCount: AllCustomer.data.count
             })
         }
         catch (e) {
             console.log("Inventory Service Get All Inventory Exception", e);
+        }
+    }
+
+    pageChange = (e) => {
+        try {
+            this.setState({
+                page: e - 1,
+                limit: this.state.limit
+            }, () => {
+                this.GetAllCustomer();
+            })
+
+        }
+        catch (e) {
+            console.log("pageChange Exception", e)
         }
     }
     prodcutCheck(product) {
@@ -403,6 +463,7 @@ export default class Customer extends Component {
                                             <div class="project-list">
                                                 <DataTable
                                                     // title="Arnold Movies"
+                                                    customStyles={customStyles}
                                                     columns={this.state.columns}
                                                     theme="light"
                                                     expandableRows
@@ -410,10 +471,13 @@ export default class Customer extends Component {
                                                     fixedHeader={true}
                                                     responsive={true}
                                                     striped={true}
+                                                    paginationTotalRows={this.state.totalCount}
                                                     data={this.state.GetAllCustomer}
                                                     onSelectedRowsChange={this.edituser}
                                                     clearSelectedRows={this.state.toggledClearRows}
                                                     pagination={true}
+                                                    paginationServer={true}
+                                                    onChangePage={(e) => { this.pageChange(e) }}
                                                     expandableRowsComponent={<this.state.ExpanableComponent />}
 
                                                 />
