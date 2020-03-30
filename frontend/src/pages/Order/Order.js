@@ -2,8 +2,7 @@ import React, { Component } from 'react';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 import * as Utilities from '../../helper/Utilities';
 import * as moment from 'moment';
-
-// import { SessionManager } from '../Helper/SessionsManager';
+import DataTable from 'react-data-table-component';
 import * as orderService from "./orderService"
 import * as productService from "../Inventory/InventoryService"
 export default class Order extends Component {
@@ -19,11 +18,16 @@ export default class Order extends Component {
             isFormOrderValid: true,
             searchOrderNumber: '',
             allOrders: [],
+            totalRecords: 0,
             ddl: [],
             modal: false,
             edituserid: 0,
             IsEdit: false,
             orderArray: [],
+            page: 0,
+            limit: 10,
+            columns: [],
+            loading: true,
             searchDate: ''
         }
         this.toggle = this.toggle.bind(this);
@@ -39,10 +43,51 @@ export default class Order extends Component {
         this.searchOrder = this.searchOrder.bind(this)
 
     }
+
     componentDidMount() {
         // this.props.isSetupUser()
+        this.setColumns()
         this.fetchProducts()
         this.fetchOrders()
+
+    }
+
+    setColumns() {
+        let { columns } = this.state
+        columns = [
+            {
+                name: 'Order number',
+                selector: 'orderNumber',
+                sortable: true
+            },
+            {
+                name: 'Order Date',
+                selector: 'date',
+                sortable: true
+
+            },
+            {
+                name: 'Total Quantity',
+                selector: row => this.getTotalQuatity(row.selectedProducts),
+                sortable: true
+
+            },
+            {
+                name: 'Total Amount',
+                selector: row => this.getTotalPrice(row.selectedProducts),
+                sortable: true
+
+            },
+            {
+                name: 'Discount',
+                selector: row => this.getTotalDiscountPrice(row.selectedProducts),
+                sortable: true
+
+            }
+        ]
+        this.setState({
+            columns
+        })
     }
 
     fetchProducts() {
@@ -57,16 +102,32 @@ export default class Order extends Component {
             })
     }
 
-    fetchOrders() {
-        orderService.getAllOrders()
+    fetchOrders(page = 0, limit = 10, ) {
+        let { searchOrderNumber, searchDate } = this.state
+        let params = {
+            page,
+            limit,
+            orderNumber: searchOrderNumber,
+            date: searchDate
+        }
+        this.setState({
+            loading: true
+        })
+
+        orderService.getAllOrders(params)
             .then(res => {
-                let { code, data } = res.data
+                let { code, data, totalRecords } = res.data
                 this.setState({
                     allOrders: data,
-                    orderArray: data
+                    orderArray: data,
+                    totalRecords,
+                    loading: false
                 })
             }).catch(err => {
                 console.log(err)
+                this.setState({
+                    loading: false
+                })
             })
     }
 
@@ -298,30 +359,24 @@ export default class Order extends Component {
     }
 
     searchOrder() {
-        let { searchOrderNumber, searchDate, orderArray } = this.state
+        let { page, limit } = this.state
 
-        let filtered = []
-
-        if (searchDate) {
-            filtered = orderArray.filter(x => x.date == searchDate)
-        }
-
-        if (searchOrderNumber) {
-            filtered = orderArray.filter(x => x.orderNumber == searchOrderNumber)
-        }
-
-        this.setState({
-            allOrders: filtered
-        })
+        this.fetchOrders(page, limit)
     }
-
+    onChangePage(data) {
+        let { page, limit } = this.state
+        
+        page = data - 1
+        this.setState({
+            page
+        })
+        this.fetchOrders(page, limit)
+    }
     render() {
 
-        let { allProducts, selectedProducts, orderNumber, errorArray, isFormOrderValid, allOrders, searchOrderNumber, searchDate } = this.state
-        let roles = [];
-        let department = [];
-        let setup_user = [];
-
+        let { allProducts, page, selectedProducts, loading, orderNumber, totalRecords, columns, errorArray, isFormOrderValid, allOrders, searchOrderNumber, searchDate } = this.state
+        console.log(page)
+        console.log(allOrders)
         return (
             <div id="App">
                 <div className="mt-4" style={{ width: '90%', margin: '0 auto' }}>
@@ -371,58 +426,22 @@ export default class Order extends Component {
                                             <input type="button" data-toggle="modal" data-target="#CreateProjectModal" class="openmodal" style={{ display: 'none' }} />
                                             <button type="button" class="muModal btn btn-outline-success pull-right mb-2 pr-4 pl-4 cent btn_AddItem" onClick={() => { this.setState({ IsEdit: false }); this.toggle() }}><i class="fa fa-plus"></i>Add </button>
                                             <div class="project-list">
-                                                <div class="table-responsive-sm">
-                                                    <table class="table table-hover">
-                                                        <thead class="bg-chart text-light">
-                                                            <tr>
-                                                                <th className="panel-th1">S.No</th>
-                                                                <th className="panel-th3">Order No.</th>
-                                                                <th className="panel-th3">Order Date</th>
-                                                                <th className="panel-th2">Total Quantity</th>
-                                                                <th className="panel-th2">Total Amount</th>
-                                                                <th className="panel-th2">Discount</th>
-                                                                <th className="panel-th4">Action</th>
-                                                            </tr>
-                                                        </thead>
-                                                        {allOrders.length > 0 &&
-                                                            <tbody>
-                                                                {(allOrders.map((val, ind) => {
-
-                                                                    return (
-                                                                        <tr key={ind}>
-                                                                            <td> {ind + 1} </td>
-                                                                            <td className="project-title text-center">
-                                                                                {val.orderNumber}
-                                                                            </td>
-                                                                            <td className="project-title text-center">
-                                                                                {val.date}
-                                                                            </td>
-                                                                            <td className="project-title text-center">
-                                                                                {this.getTotalQuatity(val.selectedProducts)}
-                                                                            </td>
-                                                                            <td className="project-title text-center">
-                                                                                {this.getTotalPrice(val.selectedProducts)}
-                                                                            </td>
-                                                                            <td className="project-title text-center">
-                                                                                {this.getTotalDiscountPrice(val.selectedProducts)}
-                                                                            </td>
-                                                                            <td className="project-actions text-center">
-
-                                                                                <button onClick={this.edituser.bind(this, val)} className="btn btn-sm btn-outline-success mb-2 mr-2 ">
-                                                                                    <span aria-hidden="true" className="fa fa-edit btn-outline-success p-1"></span>
-                                                                                </button>
-
-                                                                                <button onClick={this.deleteUser.bind(this, val)} className="btn btn-sm  btn-outline-danger mb-2 ml-2">
-                                                                                    <span aria-hidden="true" class="btn-outline-danger fa fa-trash p-1"></span>
-                                                                                </button>
-                                                                            </td>
-                                                                        </tr>
-                                                                    )
-                                                                }))}
-                                                            </tbody>
-                                                        }
-                                                    </table>
-                                                </div>
+                                                <DataTable
+                                                    theme="light"
+                                                    pagination={true}
+                                                    columns={columns}
+                                                    noHeader={true}
+                                                    fixedHeader={true}
+                                                    progressPending={loading}
+                                                    onChangePage={this.onChangePage.bind(this)}
+                                                    responsive={true}
+                                                    paginationTotalRows={totalRecords}
+                                                    paginationServer={true}
+                                                    striped={true}
+                                                    expandableRows={true}
+                                                    data={allOrders}
+                                                    expandableRowsComponent={<RenderExpandableRow />}
+                                                ></DataTable>
                                             </div>
                                         </div>
                                     </div>
@@ -567,4 +586,42 @@ export default class Order extends Component {
     }
 }
 
+
+function RenderExpandableRow(props) {
+    let { data } = props
+    return (
+        <div className="alert alert-white">
+            <h4>Products List</h4>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Product Name</th>
+                        <th scope="col">Product Price</th>
+                        <th scope="col">Quantity</th>
+                        <th scope="col">Discount Given</th>
+                        <th scope="col">Price</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {
+                        data.selectedProducts.map((x, ind) => {
+                            return (
+                                <tr key={ind}>
+                                    <th scope="row">{(ind + 1)}</th>
+                                    <td>{x.productName}</td>
+                                    <td>{x.productRetailPrice}</td>
+                                    <td>{x.quantity}</td>
+                                    <td>{x.discountType == 1 ? x.discountPrice : x.discount + "%"}</td>
+                                    <td>{x.totalPrice}</td>
+                                </tr>
+                            )
+                        })
+                    }
+
+                </tbody>
+            </table>
+        </div>
+    )
+}
 

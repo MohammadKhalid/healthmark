@@ -33,18 +33,33 @@ exports.addOrder = functions.https.onRequest(async (req, res) => {
 })
 
 
-exports.getAllOrders = functions.https.onRequest((req, res) => {
+exports.getAllOrders = functions.https.onRequest(async (req, res) => {
 
     let {
         page,
-        limit
+        limit,
+        orderNumber,
+        date
     } = req.query
 
+    limit = parseInt(limit)
     let offset = page * limit
+    let totalRecords = await admin.firestore().collection('Order').get()
+    let totalRecordsSize = totalRecords.size
     let ordersData = admin.firestore().collection('Order')
-        .limit(limit)
-        .offset(offset)
-        .get()
+    .limit(limit)
+    .offset(offset)
+
+    if (orderNumber) {
+        console.log("order number", orderNumber)
+        ordersData = ordersData.where('orderNumber', "==", orderNumber)
+    }
+    if (date) {
+        console.log("in date", date)
+        ordersData = ordersData.where('date', "==", date)
+    }
+
+    ordersData.get()
         .then((snapshot) => {
 
             var AllOrders = []
@@ -55,6 +70,7 @@ exports.getAllOrders = functions.https.onRequest((req, res) => {
             })
             return res.send({
                 code: 200,
+                totalRecords: totalRecordsSize,
                 data: AllOrders
             })
         }).catch(err => {
