@@ -43,23 +43,25 @@ exports.users = functions.https.onRequest((req, res) => {
 //Login User Firebase Auth
 
 exports.loginUser = functions.https.onRequest(async (req, res) => {
-  let {
-    email,
-    password,
-  } = req.body
-  var user = await firebase.auth().signInWithEmailAndPassword(email, password)
+  return cors(req, res, async () => {
+    let {
+      email,
+      password,
+    } = req.body
+    var user = await firebase.auth().signInWithEmailAndPassword(email, password)
 
-    .catch(e => {
-      return res.send({
-        code: 422,
-        data: e
+      .catch(e => {
+        return res.send({
+          code: 422,
+          data: e
+        })
       })
+    var userid = user.user.uid
+    var response = await admin.firestore().collection('Users').doc(userid).get()
+    return res.send({
+      code: 200,
+      data: response.data()
     })
-  var userid = user.user.uid
-  var response = await admin.firestore().collection('Users').doc(userid).get()
-  return res.send({
-    code: 200,
-    data: response.data()
   })
 })
 

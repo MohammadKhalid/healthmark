@@ -8,6 +8,7 @@ admin.initializeApp({
 });
 
 exports.getAllCustomer = functions.https.onRequest(async (req, res) => {
+    return cors(req, res, async () => {
     var page = req.query.page;
     var limit = parseInt(req.query.limit);
     var offset = page * limit
@@ -34,10 +35,12 @@ exports.getAllCustomer = functions.https.onRequest(async (req, res) => {
                 data: err
             })
         })
+        })
 
 })
 
 exports.createCustomer = functions.https.onRequest(async (req, res) => {
+    return cors(req, res, async () => {
     req.body.createAt = new Date();
     var response = await admin.firestore().collection('Customer').doc().set(req.body).catch(e => {
         return res.send({
@@ -48,5 +51,6 @@ exports.createCustomer = functions.https.onRequest(async (req, res) => {
     return res.send({
         code: 200,
         data: response
+    })
     })
 })

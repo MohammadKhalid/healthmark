@@ -20,6 +20,7 @@ var firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 
 exports.createInventory = functions.https.onRequest(async (req, res) => {
+    return cors(req, res, async () => {
     var response = await admin.firestore().collection('Inventory').doc().set(req.body).catch(e => {
         return res.send({
             code: 500,
@@ -31,10 +32,11 @@ exports.createInventory = functions.https.onRequest(async (req, res) => {
         data: response
     })
 })
+})
 
 
 exports.getAllInventory = functions.https.onRequest((req, res) => {
-   
+    return cors(req, res, async () => {
     admin.firestore().collection('Inventory').get()
         .then((snapshot) => {
             var AllInventory = []
@@ -54,10 +56,12 @@ exports.getAllInventory = functions.https.onRequest((req, res) => {
                 data: err
             })
         })
+        })
 
 })
 
 exports.updateInventory = functions.https.onRequest(async (req, res) => {
+    return cors(req, res, async () => {
     let {
         productId
     } = req.body
@@ -70,11 +74,13 @@ exports.updateInventory = functions.https.onRequest(async (req, res) => {
     return res.send({
         code: 200,
         data: response
+    })
     })
 
 })
 
 exports.deleteInventory = functions.https.onRequest(async (req, res) => {
+    return cors(req, res, async () => {
     let {
         productId
     } = req.body
@@ -87,6 +93,7 @@ exports.deleteInventory = functions.https.onRequest(async (req, res) => {
     return res.send({
         code: 200,
         data: response
+    })
     })
 
 })
