@@ -22,27 +22,29 @@ firebase.initializeApp(firebaseConfig);
 // let storage = firebase.storage()
 //Get AllUsers
 exports.users = functions.https.onRequest((req, res) => {
-  admin.firestore().collection('Users').get()
-    .then((snapshot) => {
-      var AllUsers = []
-      snapshot.forEach(doc => {
-        var obj = doc.data();
-        obj.uid = doc.id
-        delete obj.password;
-        delete obj.conformpassword
-        AllUsers.push(obj);
+  return cors(req, res, () => {
+    admin.firestore().collection('Users').get()
+      .then((snapshot) => {
+        var AllUsers = []
+        snapshot.forEach(doc => {
+          var obj = doc.data();
+          obj.uid = doc.id
+          delete obj.password;
+          delete obj.conformpassword
+          AllUsers.push(obj);
+        })
+        return res.send(AllUsers)
+      }).catch(err => {
+        console.log("err", err);
+        return res.status(500).send(err)
       })
-      return res.send(AllUsers)
-    }).catch(err => {
-      console.log("err", err);
-      return res.status(500).send(err)
-    })
+  })
 })
 
 
 //Login User Firebase Auth
 
-exports.loginUser = functions.https.onRequest(async (req, res) => {
+exports.loginUser = functions.https.onRequest((req, res) => {
   return cors(req, res, async () => {
     let {
       email,
@@ -66,76 +68,79 @@ exports.loginUser = functions.https.onRequest(async (req, res) => {
 })
 
 exports.createUser = functions.https.onRequest((req, res) => {
-  let {
-    name,
-    email,
-    password,
-    userType,
-    country,
-    phone,
-  } = req.body
-  admin.auth().createUser({
-    email: email,
-    password: password
-  }).then(userRecord => {
-    var userResponse = userRecord.toJSON()
-    req.body.uid = userResponse.uid;
-    req.body.isActive = true
-    req.body.isVerified = false
-    var response = admin.firestore().collection('Users').doc(userResponse.uid).set(req.body)
-    return res.send({
-      code: 200,
-      data: userResponse
-    });
+  return cors(req, res, () => {
+    let {
+      name,
+      email,
+      password,
+      userType,
+      country,
+      phone,
+    } = req.body
+    admin.auth().createUser({
+      email: email,
+      password: password
+    }).then(userRecord => {
+      var userResponse = userRecord.toJSON()
+      req.body.uid = userResponse.uid;
+      req.body.isActive = true
+      req.body.isVerified = false
+      var response = admin.firestore().collection('Users').doc(userResponse.uid).set(req.body)
+      return res.send({
+        code: 200,
+        data: userResponse
+      });
 
-  }).catch(e => {
-    return res.send({
-      data: e,
-      code: 422
-    });
+    }).catch(e => {
+      return res.send({
+        data: e,
+        code: 422
+      });
+    })
   })
-
 })
 
 //Edit User / Update User 
-exports.updateUser = functions.https.onRequest(async (req, res) => {
-  let {
-    uid
-  } = req.body
-  let response = await admin.firestore().collection('Users').doc(uid).update(req.body).catch(e => {
+exports.updateUser = functions.https.onRequest((req, res) => {
+  return cors(req, res, async () => {
+    let {
+      uid
+    } = req.body
+    let response = await admin.firestore().collection('Users').doc(uid).update(req.body).catch(e => {
+      return res.send({
+        code: 500,
+        data: e
+      })
+    })
     return res.send({
-      code: 500,
-      data: e
+      code: 200,
+      data: response
     })
   })
-  return res.send({
-    code: 200,
-    data: response
-  })
-
 })
 
 
 //get specific user
 exports.getSpecificUser = functions.https.onRequest(async (req, res) => {
-
-  let { userId } = req.body
-  var response = await admin.firestore().collection('Users').doc(userId).get()
-    .catch(err => {
-      return res.status(500).send({
-        code: 500,
-        data: err
+  return cors(req, res, async () => {
+    let { userId } = req.body
+    var response = await admin.firestore().collection('Users').doc(userId).get()
+      .catch(err => {
+        return res.status(500).send({
+          code: 500,
+          data: err
+        })
       })
+    let data
+    if (response.data()) {
+      data = response.data()
+    } else {
+      data = {}
+    }
+    return res.send({
+      code: 200,
+      data: response.data(),
     })
-  let data
-  if (response.data()) {
-    data = response.data()
-  } else {
-    data = {}
-  }
-  return res.send({
-    code: 200,
-    data: response.data(),
   })
 })
 
