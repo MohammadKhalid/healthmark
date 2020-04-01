@@ -49,6 +49,7 @@ exports.getAllOrders = functions.https.onRequest(async (req, res) => {
         let offset = page * limit
         let totalRecords = await admin.firestore().collection('Order').get()
         let totalRecordsSize = totalRecords.size
+        
         let ordersData = admin.firestore().collection('Order')
             .limit(limit)
             .offset(offset)

@@ -19,11 +19,43 @@ var firebaseConfig = {
 }
 firebase.initializeApp(firebaseConfig);
 
+let firestore = admin.firestore()
 // let storage = firebase.storage()
 //Get AllUsers
 exports.users = functions.https.onRequest((req, res) => {
-  return cors(req, res, () => {
-    admin.firestore().collection('Users').get()
+  return cors(req, res, async () => {
+    let {
+      page,
+      limit,
+      email,
+      name,
+      role
+    } = req.query
+
+    limit = parseInt(limit)
+    let offset = page * limit
+    let totalRecords = await admin.firestore().collection('Users').get()
+    let totalRecordsSize = totalRecords.size
+
+    let users = firestore.collection('Users')
+
+
+    if (email) {
+      users = users.where('email', '==', email)
+    }
+
+    if (name) {
+      users = users.where('name', '==', name)
+    }
+
+    if (role) {
+      console.log(role)
+      users = users.doc('userType').collection
+    }
+
+    users.get()
+      .limit(limit)
+      .offset(offset)
       .then((snapshot) => {
         var AllUsers = []
         snapshot.forEach(doc => {
@@ -33,7 +65,11 @@ exports.users = functions.https.onRequest((req, res) => {
           delete obj.conformpassword
           AllUsers.push(obj);
         })
-        return res.send(AllUsers)
+        return res.send({
+          code: 200,
+          data: AllUsers,
+          totalRecords: totalRecordsSize,
+        })
       }).catch(err => {
         console.log("err", err);
         return res.status(500).send(err)

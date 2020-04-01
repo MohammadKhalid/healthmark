@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 // import { SessionManager } from '../Helper/SessionsManager';
+import DataTable from 'react-data-table-component';
 import * as Utilities from '../../helper/Utilities';
 import * as UserService from './userService'
 import history from '../../History';
@@ -17,13 +18,17 @@ export default class Users extends Component {
             search_name: '',
             search_email: '',
             modal_role: 0,
-            search_role: 0,
+            search_role: '',
             modal_varified: false,
             search_department: 0,
-
+            loading: true,
+            columns: [],
+            totalRecords: 0,
             modal_dapartment: 0,
             edituserid: 0,
             IsEdit: false,
+            page: 0,
+            limit: 10
         }
         this.toggle = this.toggle.bind(this);
         this.ModelRoleChange = this.ModelRoleChange.bind(this);
@@ -36,6 +41,7 @@ export default class Users extends Component {
         this.clearAll = this.clearAll.bind(this);
         this.editModalUser = this.editModalUser.bind(this);
         this.searchUser = this.searchUser.bind(this);
+        this.setColumns = this.setColumns.bind(this)
         this.UserSession()
     }
 
@@ -53,25 +59,93 @@ export default class Users extends Component {
             })
     }
 
-    componentWillMount() {
+    componentDidMount() {
         // this.props.isSetupUser()
+        this.setColumns()
         this.GetAllUser();
         this.DropDownListAPI();
+    }
+    setColumns() {
+        let { columns } = this.state
+        columns = [
+            {
+                name: 'Name',
+                selector: 'name',
+                sortable: true
+            },
+            {
+                name: 'Email',
+                selector: 'email',
+                sortable: true
+            },
+            {
+                name: 'Country',
+                selector: 'country',
+                sortable: true
+            },
+            {
+                name: 'Role',
+                selector: row => <div>{row.userType.name}</div>,
+                sortable: true
+
+            },
+            {
+                name: 'Status',
+                selector: row => <div>
+                    <p style={{ color: (row.isVerified == "true") ? "#28a745" : "#dc3545" }}>
+                        {(row.isVerified == "true") ? 'Verified' : "Not Verified"}
+                    </p>
+                </div>,
+                sortable: true
+
+            },
+
+            // {
+            //     name: 'Discount',
+            //     selector: row => this.getTotalDiscountPrice(row.selectedProducts),
+            //     sortable: true
+
+            // }
+        ]
+        this.setState({
+            columns
+        })
     }
 
     DropDownListAPI() {
 
     }
 
-    GetAllUser = async () => {
+    GetAllUser = async (page = 0, limit = 10) => {
         try {
-            var AllUsers = await UserService.GetAllUsers();
+            let {
+                search_role,
+                search_email,
+                search_name
+            } = this.state
+
+            let params = {
+                page,
+                limit,
+                role: search_role,
+                email: search_email,
+                name: search_name
+            }
+            this.setState({ loading: true })
+
+            var response = await UserService.GetAllUsers(params);
+            let { data, code, totalRecords } = response.data
             this.setState({
-                GetAllUser: AllUsers.data,
-                selectedUser: AllUsers.data
+                GetAllUser: data,
+                selectedUser: data,
+                loading: false,
+                totalRecords
             })
         }
         catch (e) {
+            this.setState({
+                loading: false
+            })
             console.log("User Service Get All Users Exception", e);
         }
     }
@@ -162,14 +236,15 @@ export default class Users extends Component {
         })
     }
     clearAll() {
+        let { limit, page } = this.state
         this.setState({
             search_role: 0,
             search_department: 0,
             search_email: '',
             search_name: '',
-            selectedUser: this.state.GetAllUser
-
         })
+
+        this.GetAllUser(page, limit)
     }
     ModalclearAll() {
         this.setState({
@@ -187,15 +262,9 @@ export default class Users extends Component {
         })
     }
     searchUser() {
-        let obj = {
-            RoleId: this.state.search_role,
-            name: this.state.search_name,
-            email: this.state.search_email
-        }
-        let record = this.state.GetAllUser.filter(a => a.userType.id == this.state.search_role || a.name == this.state.search_name || a.email == this.state.search_email)
-        this.setState({
-            selectedUser: record
-        })
+        let { limit, page } = this.state
+
+        this.GetAllUser(page, limit)
     }
 
     renderUserTypeOption() {
@@ -207,8 +276,19 @@ export default class Users extends Component {
         })
         return options
     }
-    render() {
 
+    onChangePage(data) {
+        let { page, limit } = this.state
+
+        page = data - 1
+        this.setState({
+            page
+        })
+        this.GetAllUser(page, limit)
+    }
+
+    render() {
+        let { GetAllUser, totalRecords, loading, columns } = this.state
         let roles = [];
         let department = [];
         let setup_user = [];
@@ -276,7 +356,21 @@ export default class Users extends Component {
                                             {/* <input type="button" data-toggle="modal" data-target="#CreateProjectModal" class="openmodal" style={{ display: 'none' }} />
                                             <button type="button" class="muModal btn btn-outline-success pull-right mb-2 pr-4 pl-4 cent btn_AddItem" onClick={() => { this.setState({ IsEdit: false }); this.toggle() }}><i class="fa fa-plus"></i>Add </button> */}
                                             <div class="project-list">
-                                                <div class="table-responsive-sm">
+                                                <DataTable
+                                                    theme="light"
+                                                    pagination={true}
+                                                    columns={columns}
+                                                    noHeader={true}
+                                                    fixedHeader={true}
+                                                    progressPending={loading}
+                                                    onChangePage={this.onChangePage.bind(this)}
+                                                    responsive={true}
+                                                    paginationTotalRows={totalRecords}
+                                                    paginationServer={true}
+                                                    striped={true}
+                                                    data={GetAllUser}
+                                                ></DataTable>
+                                                {/* <div class="table-responsive-sm">
                                                     <table class="table table-hover">
                                                         <thead class="bg-chart text-light">
                                                             <tr>
@@ -329,7 +423,7 @@ export default class Users extends Component {
                                                             </tbody>
                                                         }
                                                     </table>
-                                                </div>
+                                                </div> */}
                                             </div>
                                         </div>
                                     </div>
