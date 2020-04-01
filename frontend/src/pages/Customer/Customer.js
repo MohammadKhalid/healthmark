@@ -77,9 +77,11 @@ export default class Customer extends Component {
             modal_customerName: '',
             modal_contactPerson: '',
             modal_contactPerson: '',
+            id: '',
             IsEdit: false,
             ExpanableComponent: '',
             columns: [],
+            productList: [],
         }
         this.toggle = this.toggle.bind(this);
         this.GetAllProduct = this.GetAllProduct.bind(this);
@@ -96,6 +98,11 @@ export default class Customer extends Component {
         this.prodcutCheck = this.prodcutCheck.bind(this);
         this.changeAddress = this.changeAddress.bind(this);
         this.pageChange = this.pageChange.bind(this);
+        this.setColumns();
+
+    }
+
+    setColumns() {
         this.state.ExpanableComponent = ({ data }) => {
             return (
                 <div className="alert alert-secondary">
@@ -246,6 +253,28 @@ export default class Customer extends Component {
         }
     }
 
+    editprodcutCheck(product) {
+        for (var i = 0; i < this.state.productList.length; i++) {
+            if (this.state.productList[i].productId == product.productId) {
+                if (!this.state.productList[i].checkbox) {
+                    this.state.productList[i].checkbox = true
+                    this.setState({
+                        productList: this.state.productList
+
+                    })
+                }
+                else {
+                    this.state.productList[i].checkbox = false
+                    this.setState({
+                        productList: this.state.productList
+
+                    })
+                }
+            }
+
+        }
+    }
+
     DropDownListAPI() {
 
     }
@@ -256,13 +285,25 @@ export default class Customer extends Component {
     toggle() {
         this.setState({
             modal: !this.state.modal,
+            IsEdit: false,
             seletedLocationAddress: ''
         });
+        this.ModalclearAll();
     }
 
     edituser = (val) => {
-        console.log("val", val);
         this.toggle();
+        var productList = [];
+        productList = this.state.GetAllProduct;
+        for (var i = 0; i < productList.length; i++) {
+            for (var j = 0; j < val.productList.length; j++) {
+                if (productList[i].productId == val.productList[j].productId) {
+                    productList[i].checkbox = true;
+                }
+
+
+            }
+        }
         this.setState({
             IsEdit: true,
             modal_customerId: val.CustomerId,
@@ -274,15 +315,60 @@ export default class Customer extends Component {
                 lat: val.customerLocation.latitude,
                 lng: val.customerLocation.longitude,
             },
+            id: val.id,
+            productList: productList
         })
     }
     editModalUser() {
-        this.toggle();
-        this.ModalclearAll();
-        this.setState({
-            IsEdit: false
-        })
+        try {
+            let { modal_customerId, modal_customerName, modal_contactPerson, modal_contactNumber, customerLocation, seletedLocationName, seletedLocationAddress, selectedUser } = this.state
+            let country = seletedLocationName.split(',')
+            var productList = [];
+            for (var i = 0; i < this.state.productList.length; i++) {
+                if (this.state.productList[i].checkbox == true) {
+                    productList.push(this.state.productList[i])
+                }
+            }
+            let payload = {
+                CustomerId: modal_customerId,
+                CustomerName: modal_customerName,
+                ContactPerson: modal_contactPerson,
+                ContactNumber: modal_contactNumber,
+                customerLocation: {
+                    area: this.state.seletedLocationName,
+                    latitude: this.state.seletedLocationAddress.lat,
+                    longitude: this.state.seletedLocationAddress.lng,
+                    country: country
+                },
+                productList: productList,
+                id: this.state.id
+            }
+            CustomerService.CustomerEdit(payload)
+                .then(res => {
+                    let { code } = res.data
+                    if (code == 200) {
+                        let filteredIndex = selectedUser.findIndex(x => x.id == this.state.id)
+                        selectedUser[filteredIndex] = payload
+                        let filteredIndex2 = this.state.GetAllCustomer.findIndex(a => a.id == this.state.id)
+                        this.state.GetAllCustomer[filteredIndex2] = payload
+                        this.setState({
+                            selectedUser: selectedUser,
+                            GetAllCustomer: this.state.GetAllCustomer
+                        })
+                        this.GetAllCustomer();
+                    }
+                }).catch(err => {
+                    console.log(err)
+                })
+            this.setState({
+                IsEdit: false
+            })
+            this.ModalclearAll();
+            this.toggle();
 
+        } catch (error) {
+
+        }
     }
 
     deleteUser(val) {
@@ -383,9 +469,10 @@ export default class Customer extends Component {
             modal_contactNumber: '',
             seletedLocationName: '',
             seletedLocationAddress: '',
-
-
+            productList: [],
+            GetAllProduct: []
         })
+        this.GetAllProduct();
     }
     searchOnchange(e) {
         this.setState({
@@ -396,7 +483,6 @@ export default class Customer extends Component {
 
     }
     render() {
-        console.log("this.state.GetallCustomer", this.state.GetAllCustomer);
         let roles = [];
         let department = [];
         let setup_user = [];
@@ -404,6 +490,7 @@ export default class Customer extends Component {
             roles = this.state.ddl[0].data1
             department = this.state.ddl[0].data;
         }
+        var AllCustomer = this.state.GetAllCustomer
         return (
             <div id="App">
                 <div className="mt-4" style={{ width: '90%', margin: '0 auto' }}>
@@ -472,7 +559,7 @@ export default class Customer extends Component {
                                                     responsive={true}
                                                     striped={true}
                                                     paginationTotalRows={this.state.totalCount}
-                                                    data={this.state.GetAllCustomer}
+                                                    data={AllCustomer}
                                                     onSelectedRowsChange={this.edituser}
                                                     clearSelectedRows={this.state.toggledClearRows}
                                                     pagination={true}
@@ -593,14 +680,29 @@ export default class Customer extends Component {
 
                                             <label class="col-lg-12">Product List </label>
                                             <div class="col-lg-12">
-                                                {this.state.GetAllProduct.map((product, index) => {
-                                                    return (
-                                                        <div className="d-inline m-2" key={index}>
-                                                            <input name="search_isActive" onChange={() => this.prodcutCheck(product)} checked={product.checkbox} type="checkbox" className="txt_SearchUserName " />
-                                                            <label className="pl-1" for=" ">{product.productName}</label>
-                                                        </div>
-                                                    )
-                                                })}
+                                                {(!this.state.IsEdit) ?
+                                                    <div>
+                                                        {this.state.GetAllProduct.map((product, index) => {
+                                                            return (
+                                                                <div className="d-inline m-2" key={index}>
+                                                                    <input name="search_isActive" onChange={() => this.prodcutCheck(product)} checked={product.checkbox} type="checkbox" className="txt_SearchUserName " />
+                                                                    <label className="pl-1" for=" ">{product.productName}</label>
+                                                                </div>
+                                                            )
+                                                        })}
+                                                    </div>
+                                                    :
+                                                    <div>
+                                                        {this.state.productList.map((product, index) => {
+                                                            return (
+                                                                <div className="d-inline m-2" key={index}>
+                                                                    <input name="search_isActive" onChange={() => this.editprodcutCheck(product)} checked={product.checkbox} type="checkbox" className="txt_SearchUserName " />
+                                                                    <label className="pl-1" for=" ">{product.productName}</label>
+                                                                </div>
+                                                            )
+                                                        })}
+                                                    </div>
+                                                }
 
                                             </div>
 

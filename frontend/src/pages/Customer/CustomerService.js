@@ -8,3 +8,7 @@ export function GetAllCustomer(payload) {
 export function CreateCustomer(payload) {
     return Axios.post(`${baseURL}/createCustomer`, payload)
 }
+
+export function CustomerEdit(payload){
+    return Axios.post(`${baseURL}/updateCustomer`,payload)
+}
