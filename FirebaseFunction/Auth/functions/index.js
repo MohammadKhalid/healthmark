@@ -48,14 +48,15 @@ exports.users = functions.https.onRequest((req, res) => {
       users = users.where('name', '==', name)
     }
 
-    if (role) {
-      console.log(role)
-      users = users.doc('userType').collection
-    }
+    // if (role) {
+    //   console.log(role)
+    //   users = users.where('userType', '==', role)
+    // }
 
-    users.get()
+    users
       .limit(limit)
       .offset(offset)
+      .get()
       .then((snapshot) => {
         var AllUsers = []
         snapshot.forEach(doc => {

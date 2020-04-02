@@ -60,14 +60,12 @@ export default class Users extends Component {
     }
 
     componentDidMount() {
-        // this.props.isSetupUser()
         this.setColumns()
         this.GetAllUser();
-        this.DropDownListAPI();
     }
     setColumns() {
         let { columns } = this.state
-        columns = [
+        return columns = [
             {
                 name: 'Name',
                 selector: 'name',
@@ -99,22 +97,30 @@ export default class Users extends Component {
                 sortable: true
 
             },
+            {
+                name: 'Action',
+                cell: row => <div>
+                    <button onClick={this.edituser.bind(this, row)} className="btn btn-sm btn-outline-success mb-2 mr-2 ">
+                        <span aria-hidden="true" className="fa fa-edit btn-outline-success p-1"></span>
+                    </button>
 
-            // {
-            //     name: 'Discount',
-            //     selector: row => this.getTotalDiscountPrice(row.selectedProducts),
-            //     sortable: true
-
-            // }
+                    <button onClick={this.deleteUser.bind(this, row)} className="btn btn-sm  btn-outline-danger mb-2 ml-2">
+                        <span aria-hidden="true" class="btn-outline-danger fa fa-trash p-1"></span>
+                    </button>
+                </div>
+            },
         ]
-        this.setState({
-            columns
-        })
+        // this.setState({
+        //     columns
+        // })
     }
 
-    DropDownListAPI() {
+    // shouldComponentUpdate(nextProps, nextState) {
 
-    }
+    //     let { GetAllUser } = this.state
+    //     debugger
+    //     return true
+    // }
 
     GetAllUser = async (page = 0, limit = 10) => {
         try {
@@ -171,7 +177,7 @@ export default class Users extends Component {
     editModalUser() {
         this.toggle();
         this.ModalclearAll();
-        let { user_name, email, modal_varified, edituserid, selectedUser } = this.state
+        let { user_name, email, modal_varified, edituserid, GetAllUser, page, limit } = this.state
 
         let payload = {
             name: user_name,
@@ -179,23 +185,26 @@ export default class Users extends Component {
             isVerified: modal_varified,
             uid: edituserid
         }
+        let filteredIndex = GetAllUser.findIndex(x => x.uid == edituserid)
+        let filtered = GetAllUser[filteredIndex]
 
-        console.log(payload)
         UserService.userEdit(payload)
             .then(res => {
                 let { code } = res.data
 
                 if (code == 200) {
-                    let filtered = selectedUser.find(x => x.uid == edituserid)
-                    let filteredIndex = selectedUser.findIndex(x => x.uid == edituserid)
 
-                    payload.userType = filtered.userType
+                    this.GetAllUser(page, limit)
+                    // let filteredIndex = GetAllUser.findIndex(x => x.uid == edituserid)
+                    // let filtered = GetAllUser[filteredIndex]
 
-                    selectedUser.splice(filteredIndex, 1, payload)
+                    // payload.userType = filtered.userType
 
-                    this.setState({
-                        selectedUser
-                    })
+                    // GetAllUser[filteredIndex] = payload
+                    // this.setState({
+                    //     GetAllUser,
+                    // })
+
                 }
             }).catch(err => {
                 console.log(err)
@@ -296,6 +305,7 @@ export default class Users extends Component {
             roles = this.state.ddl[0].data1
             department = this.state.ddl[0].data;
         }
+        columns = this.setColumns()
         return (
             <div id="App">
                 <div className="mt-4" style={{ width: '90%', margin: '0 auto' }}>
@@ -370,60 +380,7 @@ export default class Users extends Component {
                                                     striped={true}
                                                     data={GetAllUser}
                                                 ></DataTable>
-                                                {/* <div class="table-responsive-sm">
-                                                    <table class="table table-hover">
-                                                        <thead class="bg-chart text-light">
-                                                            <tr>
-                                                                <th className="panel-th1">S.No</th>
-                                                                <th className="panel-th2">Role </th>
-                                                                <th className="panel-th3">User Name </th>
-                                                                <th className="panel-th4">Country </th>
-                                                                <th className="panel-th4">Email (Login-Id)</th>
-                                                                <th className="panel-th6">Verified</th>
-                                                                <th className="panel-th7">Action</th>
-                                                            </tr>
-                                                        </thead>
-                                                        {this.state.selectedUser.length > 0 &&
-                                                            <tbody>
-                                                                {(this.state.selectedUser.map((val, ind) => {
-
-                                                                    return (
-                                                                        <tr key={ind}>
-                                                                            <td> {ind + 1} </td>
-                                                                            <td className="project-title text-center">
-                                                                                {val.userType.name}
-                                                                            </td>
-                                                                            <td className="project-title text-center">
-                                                                                {val.name}
-                                                                            </td>
-                                                                            <td className="project-title text-center">
-                                                                                {val.country}
-                                                                            </td>
-                                                                            <td className="project-title text-center">
-                                                                                {val.email}
-                                                                            </td>
-                                                                            <td className="project-title text-center " >
-                                                                                <p style={{ color: (val.isVerified == "true") ? "#28a745" : "#dc3545" }}>
-                                                                                    {(val.isVerified == "true") ? 'Yes' : "No"}
-                                                                                </p>
-                                                                            </td>
-                                                                            <td className="project-actions text-center">
-
-                                                                                <button onClick={this.edituser.bind(this, val)} className="btn btn-sm btn-outline-success mb-2 mr-2 ">
-                                                                                    <span aria-hidden="true" className="fa fa-edit btn-outline-success p-1"></span>
-                                                                                </button>
-
-                                                                                <button onClick={this.deleteUser.bind(this, val)} className="btn btn-sm  btn-outline-danger mb-2 ml-2">
-                                                                                    <span aria-hidden="true" class="btn-outline-danger fa fa-trash p-1"></span>
-                                                                                </button>
-                                                                            </td>
-                                                                        </tr>
-                                                                    )
-                                                                }))}
-                                                            </tbody>
-                                                        }
-                                                    </table>
-                                                </div> */}
+                                               
                                             </div>
                                         </div>
                                     </div>
@@ -439,7 +396,7 @@ export default class Users extends Component {
                                     <div class="modal-body" style={{ paddingBottom: '10px', borderBottomWidth: '10px', paddingTop: '10px', height: 'auto' }}>
                                         <input name="ctl00$MainContent$hfModalId" type="hidden" id="MainContent_hfModalId" class="MainContent_hfModalId" />
                                         <div class="form-group">
-                                            <div class="col-lg-12">
+                                            {/* <div class="col-lg-12">
                                                 <label for="exampleInputPassword2">Role </label>
                                                 <span id="MainContent_RequiredFieldValidator5" style={{ color: 'Red', display: 'none' }}></span>
                                                 <select className="form-control" value={this.state.modal_role} onChange={this.ModelRoleChange}>
@@ -447,21 +404,21 @@ export default class Users extends Component {
                                                         this.renderUserTypeOption()
                                                     }
                                                 </select>
-                                            </div>
+                                            </div> */}
                                             <label class="col-lg-12">User Name </label>
                                             <div class="col-lg-12">
-                                                <input type="email" name="user_name" value={this.state.user_name} onChange={this.AddOnChange} className="form-control txt_SearchEmail " /><span class="help-block m-b-none"></span>
+                                                <input disabled type="email" name="user_name" value={this.state.user_name} onChange={this.AddOnChange} className="form-control txt_SearchEmail " /><span class="help-block m-b-none"></span>
                                             </div>
                                             <label class="col-lg-12">Email (Login-Id)</label>
                                             <div class="col-lg-12">
-                                                <input type="email" name="email" value={this.state.email} onChange={this.AddOnChange} className="form-control txt_SearchEmail " /><span class="help-block m-b-none"></span>
+                                                <input disabled type="email" name="email" value={this.state.email} onChange={this.AddOnChange} className="form-control txt_SearchEmail " /><span class="help-block m-b-none"></span>
                                             </div>
                                             <div class="col-lg-12">
-                                                <label for="exampleInputPassword2">Varified </label>
+                                                <label for="exampleInputPassword2">Verified </label>
                                                 <span id="MainContent_RequiredFieldValidator5" style={{ color: 'Red', display: 'none' }}></span>
                                                 <select className="form-control" value={this.state.modal_varified} onChange={this.ModelVarifiedChange}>
-                                                    <option key={0} value={false}>false</option>
-                                                    <option key={1} value={true}>true</option>
+                                                    <option key={0} value={"false"}>false</option>
+                                                    <option key={1} value={"true"}>true</option>
                                                 </select>
                                             </div>
 
